@@ -1,23 +1,10 @@
 {% extends 'base.html' %}
 
 {% block content %}
-	<h1>Refund Ticket</h1>
-	<form id="refundTicketForm">
-		<label for="ticketId">Ticket ID:</label>
-		<input type="text" id="ticketId" name="ticketId" required>
-		
-		<label for="studentId">Student ID:</label>
-		<input type="text" id="studentId" name="studentId" required>
-
-		<input type="submit" value="Refund Ticket">
+	<h2>Refund Ticket</h2>
+	<form action="{{ url_for('refund_ticket') }}" method="post">
+		<input type="text" name="ticket_id" placeholder="Ticket ID" required><br>
+		<button type="submit">Refund Ticket</button>
 	</form>
-
-	<script>
-		document.getElementById('refundTicketForm').addEventListener('submit', function(event) {
-			event.preventDefault();
-			// Implement code for processing the refund_ticket request
-			// and handling the server response
-		});
-	</script>
 {% endblock %}
 

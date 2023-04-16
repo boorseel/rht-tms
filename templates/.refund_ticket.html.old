@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+
+{% block content %}
+	<h1>Refund Ticket</h1>
+	<form id="refundTicketForm">
+		<label for="ticketId">Ticket ID:</label>
+		<input type="text" id="ticketId" name="ticketId" required>
+		
+		<label for="studentId">Student ID:</label>
+		<input type="text" id="studentId" name="studentId" required>
+
+		<input type="submit" value="Refund Ticket">
+	</form>
+
+	<script>
+		document.getElementById('refundTicketForm').addEventListener('submit', function(event) {
+			event.preventDefault();
+			// Implement code for processing the refund_ticket request
+			// and handling the server response
+		});
+	</script>
+{% endblock %}
+

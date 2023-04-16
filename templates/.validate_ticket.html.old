@@ -13,16 +13,23 @@
 		<p><strong>Surname:</strong> {{ student_data.student_SNAME }}</p>
 		<p><strong>GSM:</strong> {{ student_data.student_GSM }}</p>
 		<p><strong>Email:</strong> {{ student_data.student_EMAIL }}</p>
+		<p><srong>Departmant:</strong> {{ student_data.student_DEP }}</p>
+	
+	<div id="afterValidation" style="display: none;">
+		<h2>Ticket validated successfully!</h2>
+		<p>Choose an action:</p>
+		<ul>
+			<li><a href="#" id="markAsSpent">Mark as Spent</a></li>
+			<li><a href="{{ url_for('refund_ticket') }}" id="refundTicket">Refund Ticket</a></li>
+		</ul>
+	</div>
 
-		<!-- Add options to mark the ticket as spent or refunded -->
-		<form action="{{ url_for('mark_spent') }}" method="post">
-			<input type="hidden" name="ticket_id" value="{{ ticket_id }}">
-			<button type="submit">Mark as Spent</button>
-		</form>
-		<form action="{{ url_for('refund_ticket') }}" method="post">
-			<input type="hidden" name="ticket_id" value="{{ ticket_id }}">
-			<button type="submit">Refund Ticket</button>
-		</form>
-	{% endif %}
+	<script>
+		// Implement code for ticket validation
+		
+		// After ticket validation is complete, show the hyperlinks
+		
+		function showTicketActions() {
+		document.getElementById('afterValidation').style.display = 'block';
+	</script>}
 {% endblock %}
-
