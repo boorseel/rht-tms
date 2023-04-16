@@ -59,7 +59,8 @@ def index():
 class User(UserMixin, db.Model):
         id = db.Column(db.Integer, primary_key=True)
         username = db.Column(db.String(255), unique=True, nullable=False)
-        email = db.Column(db.String(255), unique=True, nullable=False)                       password = db.Column(db.String(255), nullable=False)
+        email = db.Column(db.String(255), unique=True, nullable=False)                      
+        password = db.Column(db.String(255), nullable=False)
         role = db.Column(db.String(255), nullable=False)
 
 #LOGIN FUNCTION
@@ -208,7 +209,7 @@ def activate_ticket():
         msg = Message('Ticket Activation Confirmation',
                 sender='your_email@example.com',
                 recipients=[student.student_EMAIL])
-        msg.body = f"Dear {student.student_NAME} {student.student_SNAME},\n\nYour ticket for {event.event_name} on {event.event_date.strftime('%Y-%m-%d')} has been successfully activated. Please keep this email for your records.\n\nBest regards,\nThe Radio HighTECH Student Association"
+        msg.body = f"Dear {student.student_NAME} {student.student_SNAME},Your ticket for {event.event_name} on {event.event_date.strftime('%Y-%m-%d')} has been successfully activated. Please keep this email for your records.Best regards, The Radio HighTECH Student Association"
         mail.send(msg)
     else:
         flash('Ticket or student not found. Please check the information and try again.')
@@ -233,19 +234,20 @@ def refund_ticket():
         refund_tickets_table = f"refund_tickets_{event_id}"
 
         if ticket:
-                                                                                                # Move ticket from active_tickets to refund_tickets
-                                                                                                db.engine.execute(f"INSERT INTO {refund_tickets_table} SELECT * FROM {active_tickets_table} WHERE ticket_ID = '{ticket_id}'")
-                                                                                                db.engine.execute(f"DELETE FROM {active_tickets_table} WHERE ticket_ID = '{ticket_id}'")
-                                                                                                db.session.commit()
-                                                                                                # Log the refund action
-                                                                                                log = ActivityLog(user_id=current_user.id, action='refund', ticket_id=ticket.id)
-                                                                                                db.session.add(log)
-                                                                                                db.session.commit()
+            # Move ticket from active_tickets to refund_tickets
+            db.engine.execute(f"INSERT INTO {refund_tickets_table} SELECT * FROM {active_tickets_table} WHERE ticket_ID = '{ticket_id}'")
+            db.engine.execute(f"DELETE FROM {active_tickets_table} WHERE ticket_ID = '{ticket_id}'")
+            db.session.commit()
+            
+            # Log the refund action
+            log = ActivityLog(user_id=current_user.id, action='refund', ticket_id=ticket.id)
+            db.session.add(log)
+            db.session.commit()
+            flash('Ticket successfully refunded.')
 
-                                                                                                flash('Ticket successfully refunded.')
-                                                                                            else:
-                                                                                                flash('Ticket not found. Please check the information and try again.')
-                                                                                        return render_template('refund_ticket.html')
+        else:
+            flash('Ticket not found. Please check the information and try again.')
+            return render_template('refund_ticket.html')
 
 #ANALYTICS
 
