@@ -1,0 +1,9 @@
+{% extends 'base.html' %}
+
+{% block content %}
+	<h2>Refund Ticket</h2>
+	<form action="{{ url_for('refund_ticket') }}" method="post">
+		<input type="text" name="ticket_id" placeholder="Ticket ID" required><br>
+		<button type="submit">Refund Ticket</button>
+	</form>
+{% endblock %}

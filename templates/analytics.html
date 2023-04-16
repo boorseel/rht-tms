@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+
+{% block content %}
+	<h2>Event Analytics</h2>
+	<table>
+		<tr>
+			<th>Event Name</th>
+			<th>Event Date</th>
+			<th>Active Tickets</th>
+			<th>Refund Tickets</th>
+			<th>Spent Tickets</th>
+		</tr>
+		{% for event in event_analytics %}
+		<tr>
+			<td>{{ event.event_name }}</td>
+			<td>{{ event.event_date }}</td>
+			<td>{{ event.active_tickets }}</td>
+			<td>{{ event.refund_tickets }}</td>
+			<td>{{ event.spent_tickets }}</td>
+		</tr>
+		{% endfor %}
+	</table>
+{% endblock %}

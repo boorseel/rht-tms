@@ -1,0 +1,12 @@
+{% extends 'base.html' %}
+
+{% block content %}
+	<h1>Welcome, {{ current_user.username }}!</h1>
+	<p>You have seller access to the Radio HighTECH Ticket Management System.</p>
+	<ul>
+		<li><a href="{{ url_for('activate_ticket') }}">Activate Ticket</a></li>
+		<li><a href="{{ url_for('validate_ticket') }}">Validate Ticket</a></li>
+		<li><a href="{{ url_for('refund_ticket') }}">Refund Ticket</a></li>
+		<li><a href="{{ url_for('logout') }}">Logout</a></li>
+	</ul>
+{% endblock %}

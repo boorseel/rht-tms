@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Radio HighTECH Ticket Management System</title>
+</head>
+<body>
+	<header>
+		<!-- Add language selection dropdown -->
+		<select id="language" onchange="changeLanguage()">
+			<option value="en">English</option>
+			<option value="tr">Türkçe</option>
+		</select>
+	</header>
+	{% block content %}
+	{% endblock %}
+
+	<script>
+		function changeLanguage() {
+			let selectedLanguage = document.getElementById('language').value;
+			// A simple implementation of how to handle language changes using JavaScript
+			// You should replace this with a more sophisticated solution, such as using a front-end or back-end framework
+			let content = document.querySelector('#content');
+
+			if (selectedLanguage === 'en') {
+				content.innerHTML = 'Welcome to the Radio HighTECH Ticket Management System!';
+			} else if (selectedLanguage === 'tr') {
+				content.innerHTML = 'Radio HighTECH Bilet Yönetim Sistemine hoşgeldiniz!';
+			}
+		}
+	</script>
+</body>
+</html>

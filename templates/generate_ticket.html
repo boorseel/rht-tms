@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+
+{% block content %}
+	<h2>Generate Tickets</h2>
+	<form action="{{ url_for('generate_tickets') }}" method="post">
+		<select name="event_id" required>
+			<option value="" disabled selected>Select Event</option>
+			{% for event in events %}
+				<option value="{{ event.event_ID }}">{{ event.event_name }} - {{ event.event_date.strftime('%Y-%m-%d') }}</option>
+			{% endfor %}
+		</select><br>
+		<input type="number" name="num_tickets" placeholder="Number of Tickets" required min="1"><br>
+		<button type="submit">Generate Tickets</button>
+	</form>
+{% endblock %}
+
