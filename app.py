@@ -15,12 +15,12 @@ from sqlalchemy.sql import text
 
 #MAIL SETTINGS
 
-app.config['MAIL_SERVER'] = 'smtp.example.com'
-app.config['MAIL_PORT'] = 587
-app.config['MAIL_USE_TLS'] = True
-app.config['MAIL_USERNAME'] = 'your_email@example.com'
-app.config['MAIL_PASSWORD'] = 'your_email_password'
-mail = Mail(app)
+#app.config['MAIL_SERVER'] = 'smtp.example.com'
+#app.config['MAIL_PORT'] = 587
+#app.config['MAIL_USE_TLS'] = True
+#app.config['MAIL_USERNAME'] = 'your_email@example.com'
+#app.config['MAIL_PASSWORD'] = 'your_email_password'
+#mail = Mail(app)
 
 #DATABASE SETTINGS
 
@@ -79,8 +79,7 @@ def login():
             return redirect(url_for('index'))
         else:
             flash('Invalid credentials.')
-            
-    return render_template('login.html')
+            return render_template('login.html')
 
 #CREATE USER
 
@@ -109,7 +108,7 @@ def create_user():
 def create_event():
     if current_user.role not in ('admin', 'super_user'):
         flash('You do not have permission to access this page.')
-        return redirect(url_for('index')
+        return redirect(url_for('index'))
     if request.method == 'POST':
         event_name = request.form['event_name']
         event_date = request.form['event_date']
@@ -180,7 +179,7 @@ def generate_tickets():
     flash(f"{num_tickets} ticket IDs successfully generated for {event.event_name}.")
     return send_file(f"exports/tickets_{event.event_name}.xlsx", as_attachment=True)
 
-return render_template('generate_tickets.html', events=events)
+    return render_template('generate_tickets.html', events=events)
 
 #ACTIVATE TICKET
 
@@ -190,10 +189,9 @@ def activate_ticket():
     if current_user.role not in ('admin', 'super_user', 'seller'):
         flash('You do not have permission to access this page.')
         return redirect(url_for('index'))
-   
-   students = Student.query.all()
-   
-   if request.method == 'POST':
+    
+    students = Student.query.all()   
+    if request.method == 'POST':
         ticket_id = request.form['ticket_id']
         student_id = request.form['student_id']
         ticket = Ticket.query.filter_by(ticket_ID=ticket_id).first()
@@ -215,7 +213,7 @@ def activate_ticket():
         flash('Ticket or student not found. Please check the information and try again.')
         return render_template('activate_ticket.html')
 
-return render_template('activate_ticket.html', students=students)
+    return render_template('activate_ticket.html', students=students)
 
 #REFUND TICKETS
 
