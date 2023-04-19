@@ -15,17 +15,20 @@ from sqlalchemy.sql import text
 
 #MAIL SETTINGS
 
-#app.config['MAIL_SERVER'] = 'smtp.example.com'
-#app.config['MAIL_PORT'] = 587
-#app.config['MAIL_USE_TLS'] = True
-#app.config['MAIL_USERNAME'] = 'your_email@example.com'
-#app.config['MAIL_PASSWORD'] = 'your_email_password'
-#mail = Mail(app)
+app = Flask(__name__)
+
+
+app.config['MAIL_SERVER'] = 'smtp.example.com'
+app.config['MAIL_PORT'] = 587
+app.config['MAIL_USE_TLS'] = True
+app.config['MAIL_USERNAME'] = 'your_email@example.com'
+app.config['MAIL_PASSWORD'] = 'your_email_password'
+mail = Mail(app)
 
 #DATABASE SETTINGS
 
-app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://username:password@localhost/rht_tms'
+#app = Flask(__name__)
+app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root:11235813213455Ba!!!@localhost/rht_tms'
 app.config['SECRET_KEY'] = '11235813213455Ba!!!'
 
 db = SQLAlchemy(app)
@@ -34,7 +37,7 @@ login_manager.login_view = 'login'
 
 #BASE
 
-app = Flask(__name__)
+#app = Flask(__name__)
 
 #@app.route('/')
 #def index():
@@ -54,12 +57,14 @@ def index():
 
     return redirect(url_for('login'))
 
+
+
 #USER MODELS
 
 class User(UserMixin, db.Model):
         id = db.Column(db.Integer, primary_key=True)
         username = db.Column(db.String(255), unique=True, nullable=False)
-        email = db.Column(db.String(255), unique=True, nullable=False)                      
+        email = db.Column(db.String(255), unique=True, nullable=False)
         password = db.Column(db.String(255), nullable=False)
         role = db.Column(db.String(255), nullable=False)
 
@@ -189,8 +194,8 @@ def activate_ticket():
     if current_user.role not in ('admin', 'super_user', 'seller'):
         flash('You do not have permission to access this page.')
         return redirect(url_for('index'))
-    
-    students = Student.query.all()   
+
+    students = Student.query.all()
     if request.method == 'POST':
         ticket_id = request.form['ticket_id']
         student_id = request.form['student_id']
@@ -207,7 +212,7 @@ def activate_ticket():
         msg = Message('Ticket Activation Confirmation',
                 sender='your_email@example.com',
                 recipients=[student.student_EMAIL])
-        msg.body = f"Dear {student.student_NAME} {student.student_SNAME},Your ticket for {event.event_name} on {event.event_date.strftime('%Y-%m-%d')} has been successfully activated. Please keep this email for your records.Best regards, The Radio HighTECH Student Association"
+        msg.body = f"Dear {student.student_NAME} {student.student_SNAME},\n\nYour ticket for {event.event_name} on {event.event_date.strftime('%Y-%m-%d')} has been successfully activated. Please keep this email for your records.\n\nBest regards,\nThe Radio HighTECH Student Association"
         mail.send(msg)
     else:
         flash('Ticket or student not found. Please check the information and try again.')
@@ -231,21 +236,22 @@ def refund_ticket():
         active_tickets_table = f"active_tickets_{event_id}"
         refund_tickets_table = f"refund_tickets_{event_id}"
 
-        if ticket:
-            # Move ticket from active_tickets to refund_tickets
-            db.engine.execute(f"INSERT INTO {refund_tickets_table} SELECT * FROM {active_tickets_table} WHERE ticket_ID = '{ticket_id}'")
-            db.engine.execute(f"DELETE FROM {active_tickets_table} WHERE ticket_ID = '{ticket_id}'")
-            db.session.commit()
-            
-            # Log the refund action
-            log = ActivityLog(user_id=current_user.id, action='refund', ticket_id=ticket.id)
-            db.session.add(log)
-            db.session.commit()
-            flash('Ticket successfully refunded.')
+    if ticket:
+        # Move ticket from active_tickets to refund_tickets
 
-        else:
-            flash('Ticket not found. Please check the information and try again.')
-            return render_template('refund_ticket.html')
+        db.engine.execute(f"INSERT INTO {refund_tickets_table} SELECT * FROM {active_tickets_table} WHERE ticket_ID = '{ticket_id}'")
+        db.engine.execute(f"DELETE FROM {active_tickets_table} WHERE ticket_ID = '{ticket_id}'")
+        db.session.commit()
+        
+        # Log the refund action
+        
+        log = ActivityLog(user_id=current_user.id, action='refund', ticket_id=ticket.id)
+        db.session.add(log)
+        db.session.commit()
+        flash('Ticket successfully refunded.')
+    else:
+        flash('Ticket not found. Please check the information and try again.')
+        return render_template('refund_ticket.html')
 
 #ANALYTICS
 
@@ -315,4 +321,6 @@ def validate_ticket():
 
     return render_template('validate_ticket.html', student_data=student_data)
 
-#
+
+if __name__ == "__main__":
+    app.run(debug=True, host="0.0.0.0", port=5000)
