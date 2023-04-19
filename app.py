@@ -13,7 +13,7 @@ import string
 from flask_mail import Mail, Message
 from sqlalchemy.sql import text
 
-# MAIL SETTINGS
+#MAIL SETTINGS
 app = Flask(__name__)
 app.config['MAIL_SERVER'] = 'smtp.example.com'
 app.config['MAIL_PORT'] = 587
@@ -22,14 +22,14 @@ app.config['MAIL_USERNAME'] = 'your_email@example.com'
 app.config['MAIL_PASSWORD'] = 'your_email_password'
 mail = Mail(app)
 
-# DATABASE SETTINGS
+#DATABASE SETTINGS
 app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root:11235813213455Ba!!!@localhost/rht_tms'
 app.config['SECRET_KEY'] = '11235813213455Ba!!!'
 db = SQLAlchemy(app)
 login_manager = LoginManager(app)
 login_manager.login_view = 'login'
 
-# User model
+#User model
 class User(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(255), unique=True, nullable=False)
@@ -40,12 +40,12 @@ class User(UserMixin, db.Model):
     def get_by_id(cls, user_id):
         return cls.query.get(int(user_id))
         
-# User loader
+#User loader
 @login_manager.user_loader
 def load_user(user_id):
     return User.get_by_id(user_id)
 
-# Login function
+#Login function
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if current_user.is_authenticated:
@@ -61,14 +61,14 @@ def login():
             flash('Invalid credentials.')
             return render_template('login.html')
 
-# Create user
+#Create user
 @app.route('/create_user', methods=['GET', 'POST'])
 @login_required
 def create_user():
     if current_user.role != 'admin':
         flash('You do not have permission to access this page.')
         return redirect(url_for('index'))  
-  if request.method == 'POST':
+    if request.method == 'POST':
         username = request.form['username']
         email = request.form['email']
         password = hashlib.sha256(request.form['password'].encode()).hexdigest()
@@ -80,191 +80,192 @@ def create_user():
         return redirect(url_for('index'))
     return render_template('create_user.html')
 
- #EVENT CREATION   
- @app.route('/create_event', methods=['GET', 'POST']) 
- @login_required 
- def create_event(): 
-     if current_user.role not in ('admin', 'super_user'): 
-         flash('You do not have permission to access this page.') 
-         return redirect(url_for('index')) 
-     if request.method == 'POST': 
-         event_name = request.form['event_name'] 
-         event_date = request.form['event_date'] 
-         event_date_obj = datetime.strptime(event_date, '%Y-%m-%d') 
-         unique_hash = hashlib.sha1(f"{event_name}{event_date}".encode('utf-8')).hexdigest()[:10]
-         new_event = Event(event_ID=unique_hash, event_name=event_name, event_date=event_date_obj) 
-         db.session.add(new_event) 
-         db.session.commit() 
-         flash('Event successfully created.') 
-     return render_template('create_event.html')   
+#EVENT CREATION   
+@app.route('/create_event', methods=['GET', 'POST']) 
+@login_required 
+def create_event(): 
+   if current_user.role not in ('admin', 'super_user'): 
+       flash('You do not have permission to access this page.') 
+       return redirect(url_for('index')) 
+   if request.method == 'POST': 
+        event_name = request.form['event_name'] 
+        event_date = request.form['event_date'] 
+        event_date_obj = datetime.strptime(event_date, '%Y-%m-%d') 
+        unique_hash = hashlib.sha1(f"{event_name}{event_date}".encode('utf-8')).hexdigest()[:10]
+        new_event = Event(event_ID=unique_hash, event_name=event_name, event_date=event_date_obj) 
+        db.session.add(new_event) 
+        db.session.commit() 
+        flash('Event successfully created.') 
+   return render_template('create_event.html')   
 
- #SEARCH EVEN   
- @app.route('/search_events', methods=['GET', 'POST']) 
- @login_required 
- def search_events(): 
-     events = Event.query.all() 
-     filtered_events = events 
-     if request.method == 'POST': 
-         search_term = request.form['search_term']
-         event_date = request.form['event_date']
-         filtered_events = [event for event in events if (search_term.lower) in event.event_name.lower()) and (event_date == '' or event.event_date == datetime.strptime(event_date, '%Y-%m-%d'))]
-         return render_template('search_events.html', events=filtered_event)
+#SEARCH EVEN   
+@app.route('/search_events', methods=['GET', 'POST']) 
+@login_required 
+def search_events(): 
+    events = Event.query.all() 
+    filtered_events = events 
+    if request.method == 'POST': 
+        search_term = request.form['search_term']
+        event_date = request.form['event_date']
+        filtered_events = [event for event in events if (search_term.lower) in event.event_name.lower()] and (event_date == '' or event.event_date == datetime.strptime(event_date, '%Y-%m-%d'))
+        return render_template('search_events.html', events=filtered_event)
 
- #GENERATE TICKET ID   
- @app.route('/generate_tickets', methods=['GET', 'POST']) 
- @login_required 
- def generate_tickets(): 
-     if current_user.role not in ('admin', 'super_user'): 
-         flash('You do not have permission to access this page.') 
-         return redirect(url_for('index'))  
-     events = Event.query.all()   
-     if request.method == 'POST': 
-         event_id = request.form['event_id'] 
-         num_tickets = int(request.form['num_tickets']) 
-         event = Event.query.filter_by(event_ID=event_id).first() 
-         ticket_ids = []   
-     for _ in range(num_tickets):
-         ticket_id = ''.join(random.choices(string.ascii_uppercase + string.digits, k=10)) 
-         ticket = Ticket(ticket_ID=ticket_id, event_id=event.id) 
-         db.session.add(ticket) 
-         db.session.commit()
+#GENERATE TICKET ID   
+@app.route('/generate_tickets', methods=['GET', 'POST']) 
+@login_required 
+def generate_tickets(): 
+    if current_user.role not in ('admin', 'super_user'): 
+        flash('You do not have permission to access this page.') 
+        return redirect(url_for('index'))  
+    events = Event.query.all()   
+    if request.method == 'POST': 
+        event_id = request.form['event_id'] 
+        num_tickets = int(request.form['num_tickets']) 
+        event = Event.query.filter_by(event_ID=event_id).first() 
+        ticket_ids = []   
+    for _ in range(num_tickets):
+        ticket_id = ''.join(random.choices(string.ascii_uppercase + string.digits, k=10)) 
+        ticket = Ticket(ticket_ID=ticket_id, event_id=event.id) 
+        db.session.add(ticket) 
+        db.session.commit()
 
-         #Generate barcode 
-         ean = barcode.get('ean13', ticket_id, writer=ImageWriter()) 
-         filename = f"barcodes/{ticket_id}.png" 
-         ean.save(filename)   
-         ticket_ids.append(ticket_id)
+        #Generate barcode 
+        ean = barcode.get('ean13', ticket_id, writer=ImageWriter()) 
+        filename = f"barcodes/{ticket_id}.png" 
+        ean.save(filename)   
+        ticket_ids.append(ticket_id)
          
-     # Export ticket IDs to Excel 
-     wb = Workbook() 
-     ws = wb.active 
-     ws.title = f"Tickets for {event.event_name}" 
-     ws.append(['Ticket ID'])  
-     for ticket_id in ticket_ids: 
-         ws.append([ticket_id])   
-         wb.save(f"exports/tickets_{event.event_name}.xlsx")
-         flash(f"{num_tickets} ticket IDs successfully generated for {event.event_name}.") 
-         return send_file(f"exports/tickets_{event.event_name}.xlsx", as_attachment=True) 
-     return render_template('generate_tickets.html', events=events)  
+    # Export ticket IDs to Excel 
+    wb = Workbook() 
+    ws = wb.active 
+    ws.title = f"Tickets for {event.event_name}" 
+    ws.append(['Ticket ID'])  
+    for ticket_id in ticket_ids: 
+        ws.append([ticket_id])   
+        wb.save(f"exports/tickets_{event.event_name}.xlsx")
+        flash(f"{num_tickets} ticket IDs successfully generated for {event.event_name}.") 
+        return send_file(f"exports/tickets_{event.event_name}.xlsx", as_attachment=True) 
+    return render_template('generate_tickets.html', events=events)  
 
- #ACTIVATE TICKET   
- @app.route('/activate_ticket', methods=['GET', 'POST']) 
- @login_required 
- def activate_ticket(): 
-     if current_user.role not in ('admin', 'super_user', 'seller'): 
-         flash('You do not have permission to access this page.') 
-         return redirect(url_for('index'))  
-     students = Student.query.all() 
-     if request.method == 'POST': 
-         ticket_id = request.form['ticket_id'] 
-         student_id = request.form['student_id'] 
-         ticket = Ticket.query.filter_by(ticket_ID=ticket_id).first() 
-         student = Student.query.filter_by(student_ID=student_id).first()   
-     if ticket and student: 
-         ticket.student_id = student.id 
-         db.session.commit() 
-         flash('Ticket successfully activated.') 
-         #Send email confirmation to the student 
-         event = Event.query.get(ticket.event_id) 
-         msg = Message('Ticket Activation Confirmation', 
-                 sender='your_email@example.com', 
-                 recipients=[student.student_EMAIL])
-                 msg.body = f"Dear {student.student_NAME} {student.student_SNAME},\n\nYour ticket for {event.event_name} on {event.event_date.strftime('%Y-%m-%d')} has been successfully activated. Please keep this email for your records.\n\nBest regards,\nRadio HighTECH" 
-         mail.send(msg) 
-     else:
-         flash('Ticket or student not found. Please check the information and try again.') 
-         return render_template('activate_ticket.html')   
-     return render_template('activate_ticket.html', students=students)   
+#ACTIVATE TICKET   
+@app.route('/activate_ticket', methods=['GET', 'POST']) 
+@login_required 
+def activate_ticket(): 
+    if current_user.role not in ('admin', 'super_user', 'seller'): 
+        flash('You do not have permission to access this page.') 
+        return redirect(url_for('index'))  
+    students = Student.query.all() 
+    if request.method == 'POST': 
+        ticket_id = request.form['ticket_id'] 
+        student_id = request.form['student_id'] 
+        ticket = Ticket.query.filter_by(ticket_ID=ticket_id).first() 
+        student = Student.query.filter_by(student_ID=student_id).first()   
+    if ticket and student: 
+        ticket.student_id = student.id 
+        db.session.commit() 
+        flash('Ticket successfully activated.') 
+  
+        #Send email confirmation to the student 
+        event = Event.query.get(ticket.event_id) 
+        msg = Message('Ticket Activation Confirmation',
+                      sender='your_email@example.com', 
+                      recipients=[student.student_EMAIL])
+        msg.body = f"Dear {student.student_NAME} {student.student_SNAME},\n\nYour ticket for {event.event_name} on {event.event_date.strftime('%Y-%m-%d')} has been successfully activated. Please keep this email for your records.\n\nBest regards,\nRadio HighTECH" 
+        mail.send(msg) 
+    else:
+        flash('Ticket or student not found. Please check the information and try again.') 
+        return render_template('activate_ticket.html')   
+    return render_template('activate_ticket.html', students=students)   
      
- #REFUND TICKETS   
- @app.route('/refund_ticket', methods=['GET', 'POST']) 
- @login_required 
- def refund_ticket(): 
-     if current_user.role not in ('admin', 'super_user', 'seller'): 
-         flash('You do not have permission to access this page.') 
-         return redirect(url_for('index'))   
-     if request.method == 'POST': 
-         ticket_id = request.form['ticket_id'] 
-         ticket = Ticket.query.filter_by(ticket_ID=ticket_id).first() 
-         event_id = ticket.event_id 
-         active_tickets_table = f"active_tickets_{event_id}" 
-         refund_tickets_table = f"refund_tickets_{event_id}"   
-     if ticket: 
-         
-         #Move ticket from active_tickets to refund_tickets
-         db.engine.execute(f"INSERT INTO {refund_tickets_table} SELECT * FROM {active_tickets_table} WHERE ticket_ID = '{ticket_id}'")
-         db.engine.execute(f"DELETE FROM {active_tickets_table} WHERE ticket_ID = '{ticket_id}'") 
-         db.session.commit()
+#REFUND TICKETS   
+@app.route('/refund_ticket', methods=['GET', 'POST']) 
+@login_required 
+def refund_ticket(): 
+    if current_user.role not in ('admin', 'super_user', 'seller'): 
+        flash('You do not have permission to access this page.') 
+        return redirect(url_for('index'))   
+    if request.method == 'POST': 
+        ticket_id = request.form['ticket_id'] 
+        ticket = Ticket.query.filter_by(ticket_ID=ticket_id).first() 
+        event_id = ticket.event_id 
+        active_tickets_table = f"active_tickets_{event_id}" 
+        refund_tickets_table = f"refund_tickets_{event_id}"   
+    if ticket: 
+        
+        #Move ticket from active_tickets to refund_tickets
+        db.engine.execute(f"INSERT INTO {refund_tickets_table} SELECT * FROM {active_tickets_table} WHERE ticket_ID = '{ticket_id}'")
+        db.engine.execute(f"DELETE FROM {active_tickets_table} WHERE ticket_ID = '{ticket_id}'") 
+        db.session.commit()
 
-         #Log the refund action
-         log = ActivityLog(user_id=current_user.id, action='refund', ticket_id=ticket.id) 
-         db.session.add(log) 
-         db.session.commit() 
-         flash('Ticket successfully refunded.') 
-     else:
-         flash('Ticket not found. Please check the information and try again.') 
-         return render_template('refund_ticket.html')   
+        #Log the refund action
+        log = ActivityLog(user_id=current_user.id, action='refund', ticket_id=ticket.id) 
+        db.session.add(log) 
+        db.session.commit() 
+        flash('Ticket successfully refunded.') 
+    else:
+        flash('Ticket not found. Please check the information and try again.') 
+        return render_template('refund_ticket.html')   
 
- #ANALYTICS   
- @app.route('/analytics') 
- @login_required 
- def analytics(): 
-     if current_user.role not in ('admin', 'super_user'): 
-         flash('You do not have permission to access this page.') 
-         return redirect(url_for('index')) 
-     events = Event.query.all()   
-     event_analytics = [] 
-     for event in events: 
-         event_id = event.event_ID 
-         active_tickets_table = f"active_tickets_{event_id}" 
-         refund_tickets_table = f"refund_tickets_{event_id}" 
-         spent_tickets_table = f"spent_tickets_{event_id}"  
-         
-         #Calculate KPIs for the event 
-         active_tickets_count = db.engine.execute(text(f"SELECT COUNT(*) FROM {active_tickets_table}")).scalar()
-         refund_tickets_count = db.engine.execute(text(f"SELECT COUNT(*) FROM {refund_tickets_table}")).scalar()
-         spent_tickets_count = db.engine.execute(text(f"SELECT COUNT(*) FROM {spent_tickets_table}")).scalar()   
-         event_analytics.append({ 
-             'event_name': event.event_name, 
-             'event_date': event.event_date, 
-             'active_tickets': active_tickets_count, 
-             'refund_tickets': refund_tickets_count, 
-             'spent_tickets': spent_tickets_count 
-             })
-             return render_template('analytics.html', event_analytics=event_analytics)   
+#ANALYTICS   
+@app.route('/analytics') 
+@login_required 
+def analytics(): 
+    if current_user.role not in ('admin', 'super_user'): 
+        flash('You do not have permission to access this page.') 
+        return redirect(url_for('index')) 
+    events = Event.query.all()   
+    event_analytics = [] 
+    for event in events: 
+        event_id = event.event_ID 
+        active_tickets_table = f"active_tickets_{event_id}" 
+        refund_tickets_table = f"refund_tickets_{event_id}" 
+        spent_tickets_table = f"spent_tickets_{event_id}"  
+        
+        #Calculate KPIs for the event 
+        active_tickets_count = db.engine.execute(text(f"SELECT COUNT(*) FROM {active_tickets_table}")).scalar()
+        refund_tickets_count = db.engine.execute(text(f"SELECT COUNT(*) FROM {refund_tickets_table}")).scalar()
+        spent_tickets_count = db.engine.execute(text(f"SELECT COUNT(*) FROM {spent_tickets_table}")).scalar()   
+        event_analytics.append({ 
+            'event_name': event.event_name, 
+            'event_date': event.event_date, 
+            'active_tickets': active_tickets_count, 
+            'refund_tickets': refund_tickets_count, 
+            'spent_tickets': spent_tickets_count 
+            })
+        return render_template('analytics.html', event_analytics=event_analytics)   
 
- #TICKET VALIDATION   
- @app.route('/validate_ticket', methods=['GET', 'POST']) 
- @login_required 
- def validate_ticket(): 
-     student_data = None 
-     if current_user.role not in ('admin', 'super_user', 'seller'): 
-         flash('You do not have permission to access this page.') 
-         return redirect(url_for('index')) 
-     if request.method == 'POST': 
-         ticket_id = request.form['ticket_id'] 
-         ticket = Ticket.query.filter_by(ticket_ID=ticket_id).first() 
-         event_id = ticket.event_id 
-         active_tickets_table = f"active_tickets_{event_id}" 
-         spent_tickets_table = f"spent_tickets_{event_id}" 
-         if ticket: 
-             student_id = ticket.student_id 
-             student_data = Student.query.filter_by(student_ID=student_id).first() 
+#TICKET VALIDATION   
+@app.route('/validate_ticket', methods=['GET', 'POST']) 
+@login_required 
+def validate_ticket(): 
+    student_data = None 
+    if current_user.role not in ('admin', 'super_user', 'seller'): 
+        flash('You do not have permission to access this page.') 
+        return redirect(url_for('index')) 
+    if request.method == 'POST': 
+        ticket_id = request.form['ticket_id'] 
+        ticket = Ticket.query.filter_by(ticket_ID=ticket_id).first() 
+        event_id = ticket.event_id 
+        active_tickets_table = f"active_tickets_{event_id}" 
+        spent_tickets_table = f"spent_tickets_{event_id}" 
+        if ticket: 
+            student_id = ticket.student_id 
+            student_data = Student.query.filter_by(student_ID=student_id).first() 
+            
+            #Move tickets from active_tickets to spent_tickets 
+            db.engine.execute(f"INSERT INTO {spent_tickets_table} SELECT * FROM {active_tickets_table} WHERE ticket_ID = '{ticket_id}'")
+            db.engine.execute(f"DELETE FROM {active_tickets_table} WHERE ticket_ID = '{ticket_id}'") 
+            db.session.commit()   
              
-             #Move tickets from active_tickets to spent_tickets 
-             db.engine.execute(f"INSERT INTO {spent_tickets_table} SELECT * FROM {active_tickets_table} WHERE ticket_ID = '{ticket_id}'")
-             db.engine.execute(f"DELETE FROM {active_tickets_table} WHERE ticket_ID = '{ticket_id}'") 
-             db.session.commit()   
-             
-             #Log the validation action 
-             log = ActivityLog(user_id=current_user.id, action='validate', ticket_id=ticket.id) 
-             db.session.add(log) 
-             db.session.commit()
-             flash('Ticket successfully validated.')   
-         else: 
-             flash('Ticket not found. Please check the information and try again.')
-             return render_template('validate_ticket.html', student_data=student_data)   
+            #Log the validation action 
+            log = ActivityLog(user_id=current_user.id, action='validate', ticket_id=ticket.id) 
+            db.session.add(log) 
+            db.session.commit()
+            flash('Ticket successfully validated.')   
+        else: 
+            flash('Ticket not found. Please check the information and try again.')
+            return render_template('validate_ticket.html', student_data=student_data)   
              
              
- if __name__ == "__main__": 
-     app.run(debug=True, host="0.0.0.0", port=5000)
+if __name__ == "__main__": 
+    app.run(debug=True, host="0.0.0.0", port=5000)
