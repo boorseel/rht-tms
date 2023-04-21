@@ -42,9 +42,7 @@ def initialize_directories():
 initialize_directories()
 
 
-
-
-#MAIL SETTINGS
+# MAIL SETTINGS
 app = Flask(__name__)
 app.config['MAIL_SERVER'] = 'smtp.example.com'
 app.config['MAIL_PORT'] = 587
@@ -53,28 +51,26 @@ app.config['MAIL_USERNAME'] = 'your_email@example.com'
 app.config['MAIL_PASSWORD'] = 'your_email_password'
 mail = Mail(app)
 
-#DATABASE SETTINGS
+# DATABASE SETTINGS
 app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root:11235813213455Ba!!!@localhost/rht_tms'
 app.config['SECRET_KEY'] = '11235813213455Ba!!!'
 db = SQLAlchemy(app)
 login_manager = LoginManager(app)
 login_manager.login_view = 'login'
 
-#Event model
+# Event model
 class Event(db.Model):
-        event_ID = db.Column(db.String(6), primary_key=True)
-        event_Name = db.Column(db.String(255), nullable=False)
-        event_Date = db.Column(db.Date, nullable=False)
-        
-#Ticket model
-Base = declarative_base()
-class Ticket(Base):
+    event_ID = db.Column(db.String(6), primary_key=True)
+    event_Name = db.Column(db.String(255), nullable=False)
+    event_Date = db.Column(db.Date, nullable=False)
+
+# Ticket model
+class Ticket(db.Model):
     __tablename__ = 'tickets'
-    ticket_ID = Column(String, primary_key=True)
-    event_ID = Column(Integer)
+    ticket_ID = db.Column(db.String, primary_key=True)
+    event_ID = db.Column(db.Integer)
 
-
-#User model
+# User model
 class User(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(255), unique=True, nullable=False)
@@ -84,12 +80,13 @@ class User(UserMixin, db.Model):
 
     @classmethod
     def get_by_id(cls, user_id):
-            return db.session.query(cls).get(int(user_id))
+        return db.session.query(cls).get(int(user_id))
         
 #User loader
 @login_manager.user_loader
 def load_user(user_id):
     return User.get_by_id(user_id)
+
 #Log out
 @app.route('/logout')
 @login_required
