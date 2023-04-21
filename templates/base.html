@@ -1,32 +1,41 @@
 <!DOCTYPE html>
 <html>
 <head>
-	<title>Radio HighTECH Ticket Management System</title>
+    <title>Radio HighTECH Ticket Management System</title>
+    <script src="https://cdn.jsdelivr.net/npm/vue@2"></script>
+    <script src="https://unpkg.com/vue-i18n@8.27.0/dist/vue-i18n.min.js"></script>
 </head>
 <body>
-	<header>
-		<!-- Add language selection dropdown -->
-		<select id="language" onchange="changeLanguage()">
-			<option value="en">English</option>
-			<option value="tr">Türkçe</option>
-		</select>
-	</header>
-	{% block content %}
-	{% endblock %}
+    <div id="app">
+        <header>
+            <select id="language" v-on:change="changeLanguage">
+                <option value="en">English</option>
+                <option value="tr">Türkçe</option>
+            </select>
+        </header>
+        <div id="content">
+            {{ $t('welcomeMessage') }}
+        </div>
+    </div>
+    
+    <script>
+        const messages = {
+            en: {
+                welcomeMessage: 'Welcome to the Radio HighTECH Ticket Management System!'
+            },
+            tr: {
+                welcomeMessage: 'Radio HighTECH Bilet Yönetim Sistemine hoşgeldiniz!'
+            }
+        };
 
-	<script>
-		function changeLanguage() {
-			let selectedLanguage = document.getElementById('language').value;
-			// A simple implementation of how to handle language changes using JavaScript
-			// You should replace this with a more sophisticated solution, such as using a front-end or back-end framework
-			let content = document.querySelector('#content');
+        const i18n = new VueI18n({
+            locale: 'en',
+            messages
+        });
 
-			if (selectedLanguage === 'en') {
-				content.innerHTML = 'Welcome to the Radio HighTECH Ticket Management System!';
-			} else if (selectedLanguage === 'tr') {
-				content.innerHTML = 'Radio HighTECH Bilet Yönetim Sistemine hoşgeldiniz!';
-			}
-		}
-	</script>
-</body>
-</html>
+        const app = new Vue({
+            el: '#app',
+            i18n,
+            methods: {
+                changeLanguage: function (event) {
+                    this.$i18n.locale = event.target
