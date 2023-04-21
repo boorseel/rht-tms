@@ -23,7 +23,7 @@ sentry_sdk.init(
             traces_sample_rate=1.0
             )
 
-#OS SETTINGS
+# OS SETTINGS
 os.chdir('/var/www/rht-tms')
 
 
@@ -345,35 +345,37 @@ def refund_ticket():
 
     return render_template('refund_ticket.html')
 
-#ANALYTICS   
-@app.route('/analytics') 
-@login_required 
-def analytics(): 
-    if current_user.role not in ('admin', 'super_user'): 
-        flash('You do not have permission to access this page.') 
-        return redirect(url_for('index')) 
-    events = Event.query.all()   
-    event_analytics = [] 
-    for event in events: 
-        event_ID = event.event_ID 
-        active_tickets_table = f"active_tickets_{event_ID}" 
-        refund_tickets_table = f"refund_tickets_{event_ID}" 
-        spent_tickets_table = f"spent_tickets_{event_ID}"  
-        
-        #Calculate KPIs for the event 
+# ANALYTICS   
+@app.route('/analytics')
+@login_required
+def analytics():
+    if current_user.role not in ('admin', 'super_user'):
+        flash('You do not have permission to access this page.')
+        return redirect(url_for('index'))
+    events = Event.query.all()
+    event_analytics = []
+    for event in events:
+        event_ID = event.event_ID
+        active_tickets_table = f"active_tickets_{event_ID}"
+        refund_tickets_table = f"refund_tickets_{event_ID}"
+        spent_tickets_table = f"spent_tickets_{event_ID}"
+
+        # Calculate KPIs for the event
         active_tickets_count = db.engine.execute(text(f"SELECT COUNT(*) FROM {active_tickets_table}")).scalar()
         refund_tickets_count = db.engine.execute(text(f"SELECT COUNT(*) FROM {refund_tickets_table}")).scalar()
-        spent_tickets_count = db.engine.execute(text(f"SELECT COUNT(*) FROM {spent_tickets_table}")).scalar()   
-        event_analytics.append({ 
-            'event_Name': event.event_Name, 
-            'event_Date': event.event_Date, 
-            'active_tickets': active_tickets_count, 
-            'refund_tickets': refund_tickets_count, 
-            'spent_tickets': spent_tickets_count 
-            })
-        return render_template('analytics.html', event_analytics=event_analytics)   
+        spent_tickets_count = db.engine.execute(text(f"SELECT COUNT(*) FROM {spent_tickets_table}")).scalar()
+        event_analytics.append({
+            'event_Name': event.event_Name,
+            'event_Date': event.event_Date,
+            'active_tickets': active_tickets_count,
+            'refund_tickets': refund_tickets_count,
+            'spent_tickets': spent_tickets_count
+        })
 
-#TICKET VALIDATION    
+    # Move this line back one level of indentation
+    return render_template('analytics.html', event_analytics=event_analytics)
+
+# TICKET VALIDATION    
 @app.route('/validate_ticket', methods=['GET', 'POST'])  
 @login_required  
 def validate_ticket():  
@@ -409,12 +411,14 @@ def validate_ticket():
 
              
              
-if __name__ == "__main__": 
-    app.run(debug=True, host="0.0.0.0", port=5000)
-    app.run(ssl_context="adhoc")
+if __name__ == "__main__":
     initialize_directories()
-    #Comment out after initial run.
+
+    # Comment out after initial run.
     with app.app_context():
         db.create_all()
-    
+
     migrate = Migrate(app, db)
+
+
+    app.run(debug=True, host="0.0.0.0", port=5000, ssl_context="adhoc")
