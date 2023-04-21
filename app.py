@@ -211,7 +211,6 @@ def search_events():
         filtered_events = [event for event in events if (search_term.lower) in event.event_Name.lower()] and (event_Date == '' or event.event_Date == datetime.strptime(event_Date, '%Y-%m-%d'))
         return render_template('search_events.html', events=filtered_event)
 
-#GENERATE TICKET ID   
 @app.route('/generate_tickets', methods=['GET', 'POST'])
 @login_required
 def generate_tickets():
@@ -236,10 +235,15 @@ def generate_tickets():
             print(f"Generating {num_tickets} tickets for event ID {event_ID}")
             flash('Event found.', 'info')
             print("Starting ticket generation...")
-                        
+
+            # Initialize count variable
+            count = 1
+
             for _ in range(num_tickets):
-                ticket_id = ''.join(random.choices(string.ascii_uppercase + string.digits, k=10))
-                ticket = Ticket(ticket_ID=ticket_id, event_ID=event.event_ID)
+                # Generate ticket ID using event_ID and count
+                ticket_id = f"{event_ID}{count:03d}"
+
+                ticket = Ticket(ticket_ID=ticket_id, event_ID=event.ID)
                 db.session.add(ticket)
                 db.session.commit()
                 print("Ticket committed to database:", ticket_id)
@@ -248,11 +252,12 @@ def generate_tickets():
                 filename = f"barcodes/{ticket_id}.png"
                 ean.save(filename)
                 ticket_ids.append(ticket_id)
-                
                 print("Generating barcode for ticket:", ticket_id)
                 ean.save(filename)
                 print("Barcode saved:", filename)
 
+                # Increment count variable
+                count += 1
 
             flash('Tickets generated successfully!')
             # Export ticket IDs to Excel
@@ -270,7 +275,6 @@ def generate_tickets():
             flash("Event not found", "error")
             return redirect(url_for('index'))
     return render_template('generate_tickets.html', events=events)
-
 
 #ACTIVATE TICKET   
 @app.route('/activate_ticket', methods=['GET', 'POST']) 
