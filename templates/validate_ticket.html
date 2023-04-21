@@ -3,7 +3,7 @@
 {% block content %}
 	<h2>Validate Ticket</h2>
 	<form action="{{ url_for('validate_ticket') }}" method="post">
-		<input type="text" name="ticket_id" placeholder="Ticket ID" required><br>
+		<input type="text" name="ticket_ID" placeholder="Ticket ID" required><br>
 		<button type="submit">Validate Ticket</button>
 	</form>
 	{% if student_data %}
@@ -16,11 +16,11 @@
 
 		<!-- Add options to mark the ticket as spent or refunded -->
 		<form action="{{ url_for('mark_spent') }}" method="post">
-			<input type="hidden" name="ticket_id" value="{{ ticket_id }}">
+			<input type="hidden" name="ticket_ID" value="{{ ticket_ID }}">
 			<button type="submit">Mark as Spent</button>
 		</form>
 		<form action="{{ url_for('refund_ticket') }}" method="post">
-			<input type="hidden" name="ticket_id" value="{{ ticket_id }}">
+			<input type="hidden" name="ticket_ID" value="{{ ticket_ID }}">
 			<button type="submit">Refund Ticket</button>
 		</form>
 	{% endif %}
