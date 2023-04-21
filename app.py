@@ -76,9 +76,10 @@ class User(UserMixin, db.Model):
     email = db.Column(db.String(255), unique=True, nullable=False)
     password = db.Column(db.String(255), nullable=False)
     role = db.Column(db.String(255), nullable=False)
+
     @classmethod
     def get_by_id(cls, user_id):
-        return cls.session.get(int(user_id))
+            return db.session.query(cls).get(int(user_id))
         
 #User loader
 @login_manager.user_loader
@@ -219,24 +220,29 @@ def generate_tickets():
         return redirect(url_for('index'))
     events = Event.query.all()
     if request.method == 'POST':
+        print("Request method is POST")
         event_ID = None
         try:
             event_ID = request.form['event_ID']
         except KeyError:
             flash('Event ID not provided.', 'error')
             return redirect(url_for('index'))
-        event = Event.query.filter_by(event_ID=event_ID).first()
+        print(f"Event ID: {event_ID}")
+        event = db.session.query(Event).filter_by(event_ID=event_ID).first()
+        num_tickets = int(request.form.get('num_tickets', 0))
+        print(f"Number of tickets to generate: {num_tickets}")
         if event is not None:
             ticket_ids = []
+            print(f"Generating {num_tickets} tickets for event ID {event_ID}")
             flash('Event found.', 'info')
-
             print("Starting ticket generation...")
-            
+                        
             for _ in range(num_tickets):
                 ticket_id = ''.join(random.choices(string.ascii_uppercase + string.digits, k=10))
-                ticket = Ticket(ticket_ID=ticket_id, event_ID=event.ID)
+                ticket = Ticket(ticket_ID=ticket_id, event_ID=event.event_ID)
                 db.session.add(ticket)
                 db.session.commit()
+                print("Ticket committed to database:", ticket_id)
                 # Generate barcode
                 ean = barcode.get('ean13', ticket_ID, writer=ImageWriter())
                 filename = f"barcodes/{ticket_id}.png"
@@ -250,6 +256,7 @@ def generate_tickets():
 
             flash('Tickets generated successfully!')
             # Export ticket IDs to Excel
+            print(f"{num_tickets} ticket IDs successfully generated for {event.event_Name}.")
             wb = Workbook()
             ws = wb.active
             ws.title = f"Tickets for {event.event_Name}"
