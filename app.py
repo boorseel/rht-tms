@@ -43,6 +43,7 @@ def initialize_directories():
 
 initialize_directories()
 
+
 # MAIL SETTINGS
 app = Flask(__name__)
 app.config['MAIL_SERVER'] = 'smtp.example.com'
@@ -250,7 +251,7 @@ def generate_tickets():
                 filename = f"barcodes/{ticket_ID}.png"
                 ean.save(filename)
                 ticket_ids.append(ticket_ID)
-                print("Generating barcode for ticket:", ticket_id)
+                print("Generating barcode for ticket:", ticket_ID)
                 ean.save(filename)
                 print("Barcode saved:", filename)
 
