@@ -1,81 +1,90 @@
 /* General styling */
 body {
-	font-family: Arial, sans-serif;
-	line-height: 1.6;
-	margin: 0;
-	padding: 0;
-	background-color: #f4f4f4;
+    font-family: Arial, sans-serif;
+    line-height: 1.6;
+    margin: 0;
+    padding: 0;
+    background-color: #f4f4f4;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
 }
+
 h1, h2, h3, h4, h5, h6 {
-	margin-top: 0;
+    margin-top: 0;
 }
 
 ul {
-	padding: 0;
+    padding: 0;
 }
 
 header {
-	background-color: #35424a;
-	padding: 20px;
-	margin-bottom: 10px;
+    background-color: #35424a;
+    padding: 20px;
+    margin-bottom: 10px;
 }
 header select {
-	background-color: #e8491d;
-	color: #fff;
-	border: none;
-	padding: 5px;
-	font-size: 16px;
-	cursor: pointer;
+    background-color: #e8491d;
+    color: #fff;
+    border: none;
+    padding: 5px;
+    font-size: 16px;
+    cursor: pointer;
 }
 header select:focus {
-	outline: none;
+    outline: none;
 }
 
 /* Content styling */
 .container {
-	margin: auto;
-	width: 80%;
-	overflow: auto;
-	padding: 0 30px;
+    margin: auto;
+    width: 80%;
+    overflow: auto;
+    padding: 0 30px;
+    background-color: #fff;
+    border-radius: 5px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+    max-width: 600px;
 }
 form {
-	margin: 20px 0;
+    margin: 20px 0;
 }
 
 input[type="text"], input[type="email"], input[type="password"], select {
-	width: 100%;
-	padding: 12px 20px;
-	margin: 8px 0;
-	display: inline-block;
-	border: 1px solid #ccc;
-	border-radius: 4px;
-	box-sizing: border-box;
+    width: 100%;
+    padding: 12px 20px;
+    margin: 8px 0;
+    display: inline-block;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-sizing: border-box;
 }
 button[type="submit"] {
-	width: 100%;
-	background-color: #4CAF50;
-	color: white;
-	padding: 14px 20px;
-	margin: 8px 0;
-	border: none;
-	border-radius: 4px;
-	cursor: pointer;
+    width: 100%;
+    background-color: #4CAF50;
+    color: white;
+    padding: 14px 20px;
+    margin: 8px 0;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
 }
 button[type="submit"]:hover {
-	background-color: #45a049;
+    background-color: #45a049;
 }
 /* Hyperlink styling */
 a {
-	color: #333;
-	text-decoration: none;
+    color: #333;
+    text-decoration: none;
 }
 a:hover {
-	color: #e8491d;
+    color: #e8491d;
 }
 /* Responsive design */
 @media screen and (max-width: 600px) {
-	.container {
-		width: 100%;
-		padding: 0 15px;
-	}												     
+    .container {
+        width: 100%;
+        padding: 0 15px;
+    }
 }
