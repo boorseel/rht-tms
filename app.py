@@ -14,6 +14,7 @@ from flask_mail import Mail, Message
 from sqlalchemy.sql import text
 from sqlalchemy import Column, Integer, String
 from sqlalchemy.orm import declarative_base, Session
+from flask_migrate import Migrate
 
 #Debuging
 import sentry_sdk
@@ -82,7 +83,7 @@ class User(UserMixin, db.Model):
         return db.session.query(cls).get(int(user_id))
 
 # Student model
-class Student(db.Model):
+class Students(db.Model):
     cli_ID = db.Column(db.Integer, primary_key=True, autoincrement=True)
     student_ID = db.Column(db.String(255), nullable=False, unique=True)
     student_NAME = db.Column(db.String(255), nullable=False)
@@ -92,7 +93,7 @@ class Student(db.Model):
     student_DEP = db.Column(db.String(255), nullable=False)
 
     def __repr__(self):
-        return f"<Student {self.student_ID} - {self.student_NAME} {self.student_SNAME}>"
+        return f"<Students {self.student_ID} - {self.student_NAME} {self.student_SNAME}>"
       
 # User loader
 @login_manager.user_loader
@@ -279,7 +280,7 @@ def activate_ticket():
     if current_user.role not in ('admin', 'super_user', 'seller'): 
         flash('You do not have permission to access this page.') 
         return redirect(url_for('index'))  
-    students = Student.query.all() 
+    students = Students.query.all() 
     if request.method == 'POST': 
         ticket_id = request.form['ticket_id'] 
         student_id = request.form['student_id'] 
@@ -294,8 +295,8 @@ def activate_ticket():
         event = Event.session.get(ticket.event_IDi) 
         msg = Message('Ticket Activation Confirmation',
                       sender='your_email@example.com', 
-                      recipients=[student.student_EMAIL])
-        msg.body = f"Dear {student.student_NAME} {student.student_SNAME},\n\nYour ticket for {event.event_Name} on {event.event_Date.strftime('%Y-%m-%d')} has been successfully activated. Please keep this email for your records.\n\nBest regards,\nRadio HighTECH" 
+                      recipients=[students.student_EMAIL])
+        msg.body = f"Dear {students.student_NAME} {students.student_SNAME},\n\nYour ticket for {event.event_Name} on {event.event_Date.strftime('%Y-%m-%d')} has been successfully activated. Please keep this email for your records.\n\nBest regards,\nRadio HighTECH" 
         mail.send(msg) 
     else:
         flash('Ticket or student not found. Please check the information and try again.') 
@@ -375,7 +376,7 @@ def validate_ticket():
         spent_tickets_table = f"spent_tickets_{event_ID}" 
         if ticket: 
             student_id = ticket.student_id 
-            student_data = Student.query.filter_by(student_ID=student_id).first() 
+            student_data = Students.query.filter_by(student_ID=student_id).first() 
             
             #Move tickets from active_tickets to spent_tickets 
             db.engine.execute(f"INSERT INTO {spent_tickets_table} SELECT * FROM {active_tickets_table} WHERE ticket_ID = '{ticket_id}'")
@@ -399,3 +400,5 @@ if __name__ == "__main__":
     #Comment out after initial run.
     with app.app_context():
         db.create_all()
+    
+    migrate = Migrate(app, db)
