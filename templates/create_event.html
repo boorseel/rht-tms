@@ -3,8 +3,8 @@
 {% block content %}
 	<h2>Create Event</h2>
 	<form action="{{ url_for('create_event') }}" method="post">
-		<input type="text" name="event_name" placeholder="Event Name" required><br>
-		<input type="date" name="event_date" required><br>
+		<input type="text" name="event_Name" placeholder="Event Name" required><br>
+		<input type="date" name="event_Date" required><br>
 		<button type="submit">Create Event</button>
 	</form>
 {% endblock %}
