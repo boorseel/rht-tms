@@ -243,12 +243,12 @@ def generate_tickets():
                 # Generate ticket ID using event_ID and count
                 ticket_id = f"{event_ID}{count:03d}"
 
-                ticket = Ticket(ticket_ID=ticket_id, event_ID=event.ID)
+                ticket = Ticket(ticket_ID=ticket_id, event_ID=event.event_ID)
                 db.session.add(ticket)
                 db.session.commit()
                 print("Ticket committed to database:", ticket_id)
                 # Generate barcode
-                ean = barcode.get('ean13', ticket_ID, writer=ImageWriter())
+                ean = barcode.get('ean13', ticket_id, writer=ImageWriter())
                 filename = f"barcodes/{ticket_id}.png"
                 ean.save(filename)
                 ticket_ids.append(ticket_id)
