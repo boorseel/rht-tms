@@ -2,6 +2,7 @@
 <html>
 <head>
     <title>Radio HighTECH Ticket Management System</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
     <script src="https://cdn.jsdelivr.net/npm/vue@2"></script>
     <script src="https://unpkg.com/vue-i18n@8.27.0/dist/vue-i18n.min.js"></script>
 </head>
@@ -38,4 +39,10 @@
             i18n,
             methods: {
                 changeLanguage: function (event) {
-                    this.$i18n.locale = event.target
+                    this.$i18n.locale = event.target.value;
+                }
+            }
+        });
+    </script>
+</body>
+</html>
