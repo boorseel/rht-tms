@@ -310,34 +310,40 @@ def activate_ticket():
     return render_template('activate_ticket.html', students=students)
 
      
-# REFUND TICKETS   
+# REFUND TICKETS    
 @app.route('/refund_ticket', methods=['GET', 'POST']) 
 @login_required 
 def refund_ticket(): 
     if current_user.role not in ('admin', 'super_user', 'seller'): 
         flash('You do not have permission to access this page.') 
-        return redirect(url_for('index'))   
+        return redirect(url_for('index'))
+
+    ticket = None
+    
     if request.method == 'POST': 
         ticket_id = request.form['ticket_id'] 
-        ticket = Ticket.query.filter_by(ticket_ID=ticket_id).first() 
-        event_ID = ticket.event_ID 
-        active_tickets_table = f"active_tickets_{event_ID}" 
-        refund_tickets_table = f"refund_tickets_{event_ID}"   
-    if ticket: 
-        
-        #Move ticket from active_tickets to refund_tickets
+        ticket = Ticket.query.filter_by(ticket_ID=ticket_id).first()
+        if ticket:
+            event_ID = ticket.event_ID 
+            active_tickets_table = f"active_tickets_{event_ID}" 
+            refund_tickets_table = f"refund_tickets_{event_ID}" 
+
+    if ticket:
+        # Move ticket from active_tickets to refund_tickets
         db.engine.execute(f"INSERT INTO {refund_tickets_table} SELECT * FROM {active_tickets_table} WHERE ticket_ID = '{ticket_id}'")
-        db.engine.execute(f"DELETE FROM {active_tickets_table} WHERE ticket_ID = '{ticket_id}'") 
+        db.engine.execute(f"DELETE FROM {active_tickets_table} WHERE ticket_ID = '{ticket_id}'")
         db.session.commit()
 
-        #Log the refund action
-        log = ActivityLog(user_id=current_user.id, action='refund', ticket_id=ticket.id) 
-        db.session.add(log) 
-        db.session.commit() 
-        flash('Ticket successfully refunded.') 
+        # Log the refund action
+        log = ActivityLog(user_id=current_user.id, action='refund', ticket_id=ticket.id)
+        db.session.add(log)
+        db.session.commit()
+        flash('Ticket successfully refunded.')
     else:
-        flash('Ticket not found. Please check the information and try again.') 
-        return render_template('refund_ticket.html')   
+        flash('Ticket not found. Please check the information and try again.')
+        return render_template('refund_ticket.html')
+
+    return render_template('refund_ticket.html')
 
 #ANALYTICS   
 @app.route('/analytics') 
