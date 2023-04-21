@@ -41,7 +41,6 @@ def initialize_directories():
 
 initialize_directories()
 
-
 # MAIL SETTINGS
 app = Flask(__name__)
 app.config['MAIL_SERVER'] = 'smtp.example.com'
