@@ -80,13 +80,26 @@ class User(UserMixin, db.Model):
     @classmethod
     def get_by_id(cls, user_id):
         return db.session.query(cls).get(int(user_id))
-        
-#User loader
+
+# Student model
+class Student(db.Model):
+    cli_ID = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    student_ID = db.Column(db.String(255), nullable=False, unique=True)
+    student_NAME = db.Column(db.String(255), nullable=False)
+    student_SNAME = db.Column(db.String(255), nullable=False)
+    student_GSM = db.Column(db.String(255))
+    student_EMAIL = db.Column(db.String(255), nullable=False, unique=True)
+    student_DEP = db.Column(db.String(255), nullable=False)
+
+    def __repr__(self):
+        return f"<Student {self.student_ID} - {self.student_NAME} {self.student_SNAME}>"
+      
+# User loader
 @login_manager.user_loader
 def load_user(user_id):
     return User.get_by_id(user_id)
 
-#Log out
+# Log out
 @app.route('/logout')
 @login_required
 def logout():
@@ -94,33 +107,17 @@ def logout():
     flash('You have successfully logged out.')
     return redirect(url_for('login'))
 
-#BASE 
-@app.route('/') 
-@login_required 
+# BASE
+@app.route('/')
+@login_required
 def index():
     if current_user.role in ('admin', 'super_user'):
-        return redirect(url_for('admin_main')) 
-    elif current_user.role == 'seller': 
-        return redirect(url_for('seller_main'))   
-    return redirect(url_for('login')) 
+        return redirect(url_for('admin_main'))
+    elif current_user.role == 'seller':
+        return redirect(url_for('seller_main'))
+    return redirect(url_for('login'))
 
-
-#Login function
-#@app.route('/login', methods=['GET', 'POST'])
-#def login():
-#    if current_user.is_authenticated:
-#        return redirect(url_for('index'))
-#    if request.method == 'POST':
-#        username = request.form['username']
-#        password = hashlib.sha256(request.form['password'].encode()).hexdigest()
-#        user = User.query.filter_by(username=username).first()
-#        if user and user.password == password:
-#            login_user(user)
-#            return redirect(url_for('index'))
-#        else:
-#            flash('Invalid credentials.')
-#            return render_template('login.html')
-
+# Login function
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if current_user.is_authenticated:
@@ -130,10 +127,8 @@ def login():
         username = request.form['username']
         password = hashlib.sha256(request.form['password'].encode()).hexdigest()
         user = User.query.filter_by(username=username).first()
-
         if user:
             print(f"Expected password: {user.password}, provided password: {password}")
-
         if user and user.password == password:
             login_user(user)
             print("User logged in successfully")
@@ -145,7 +140,7 @@ def login():
     else:
         return render_template('login.html')
 
-#Admin main landing
+# Admin main landing
 @app.route('/admin_main')
 @login_required
 def admin_main():
@@ -154,7 +149,7 @@ def admin_main():
         return redirect(url_for('index'))
     return render_template('admin_main.html')
 
-#Seller main landing
+# Seller main landing
 @app.route('/seller_main')
 @login_required
 def seller_main():
@@ -163,7 +158,7 @@ def seller_main():
 
 
 
-#Create user
+# Create user
 @app.route('/create_user', methods=['GET', 'POST'])
 @login_required
 def create_user():
@@ -182,7 +177,7 @@ def create_user():
         return redirect(url_for('index'))
     return render_template('create_user.html')
 
-#EVENT CREATION   
+# EVENT CREATION   
 @app.route('/create_event', methods=['GET', 'POST']) 
 @login_required 
 def create_event(): 
@@ -200,7 +195,7 @@ def create_event():
         flash('Event successfully created.') 
    return render_template('create_event.html')   
 
-#SEARCH EVENT 
+# SEARCH EVENT 
 @app.route('/search_events', methods=['GET', 'POST']) 
 @login_required 
 def search_events(): 
@@ -307,7 +302,7 @@ def activate_ticket():
         return render_template('activate_ticket.html')   
     return render_template('activate_ticket.html', students=students)   
      
-#REFUND TICKETS   
+# REFUND TICKETS   
 @app.route('/refund_ticket', methods=['GET', 'POST']) 
 @login_required 
 def refund_ticket(): 
