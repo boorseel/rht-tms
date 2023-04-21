@@ -273,35 +273,42 @@ def generate_tickets():
             return redirect(url_for('index'))
     return render_template('generate_tickets.html', events=events)
 
-#ACTIVATE TICKET   
-@app.route('/activate_ticket', methods=['GET', 'POST']) 
-@login_required 
-def activate_ticket(): 
-    if current_user.role not in ('admin', 'super_user', 'seller'): 
-        flash('You do not have permission to access this page.') 
-        return redirect(url_for('index'))  
-    students = Students.query.all() 
-    if request.method == 'POST': 
-        ticket_id = request.form['ticket_id'] 
-        student_id = request.form['student_id'] 
-        ticket = Ticket.query.filter_by(ticket_ID=ticket_id).first() 
-        student = Student.query.filter_by(student_ID=student_id).first()   
-    if ticket and student: 
-        ticket.student_id = student.id 
-        db.session.commit() 
-        flash('Ticket successfully activated.') 
-  
-        #Send email confirmation to the student 
-        event = Event.session.get(ticket.event_IDi) 
-        msg = Message('Ticket Activation Confirmation',
-                      sender='your_email@example.com', 
-                      recipients=[students.student_EMAIL])
-        msg.body = f"Dear {students.student_NAME} {students.student_SNAME},\n\nYour ticket for {event.event_Name} on {event.event_Date.strftime('%Y-%m-%d')} has been successfully activated. Please keep this email for your records.\n\nBest regards,\nRadio HighTECH" 
-        mail.send(msg) 
-    else:
-        flash('Ticket or student not found. Please check the information and try again.') 
-        return render_template('activate_ticket.html')   
-    return render_template('activate_ticket.html', students=students)   
+# ACTIVATE TICKET
+@app.route('/activate_ticket', methods=['GET', 'POST'])
+@login_required
+def activate_ticket():
+    if current_user.role not in ('admin', 'super_user', 'seller'):
+        flash('You do not have permission to access this page.')
+        return redirect(url_for('index'))
+    students = Students.query.all()
+    ticket = None  # Initialize the 'ticket' variable with a default value
+    student = None  # Initialize the 'student' variable with a default value
+
+    if request.method == 'POST':
+        ticket_id = request.form['ticket_id']
+        student_id = request.form['student_id']
+
+        ticket = Ticket.query.filter_by(ticket_ID=ticket_id).first()
+        student = Student.query.filter_by(student_ID=student_id).first()
+
+        if ticket and student:
+            ticket.student_id = student.id
+            db.session.commit()
+            flash('Ticket successfully activated.')
+
+            # Send email confirmation to the student
+            event = Event.query.get(ticket.event_ID)  # Corrected the line to query Event
+            msg = Message('Ticket Activation Confirmation',
+                          sender='your_email@example.com',
+                          recipients=[students.student_EMAIL])  
+            msg.body = f"Dear {students.student_NAME} {students.student_SNAME},\n\nYour ticket for {event.event_Name} on {event.event_Date.strftime('%Y-%m-%d')} has been successfully activated. Please keep this email for your records.\n\nBest regards,\nRadio HighTECH"
+            mail.send(msg)
+        else:
+            flash('Ticket or student not found. Please check the information and try again.')
+            return render_template('activate_ticket.html')
+
+    return render_template('activate_ticket.html', students=students)
+
      
 # REFUND TICKETS   
 @app.route('/refund_ticket', methods=['GET', 'POST']) 
