@@ -14,7 +14,7 @@
 		<p><strong>GSM:</strong> {{ student_data.student_GSM }}</p>
 		<p><strong>Email:</strong> {{ student_data.student_EMAIL }}</p>
 
-		<!-- Add options to mark the ticket as spent or refunded -->
+
 		<form action="{{ url_for('mark_spent') }}" method="post">
 			<input type="hidden" name="ticket_ID" value="{{ ticket_ID }}">
 			<button type="submit">Mark as Spent</button>
