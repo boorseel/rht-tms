@@ -25,17 +25,22 @@ sentry_sdk.init(
 #OS SETTINGS
 os.chdir('/var/www/rht-tms')
 
+
 def create_directory_if_not_exists(directory_path):
     if not os.path.exists(directory_path):
         os.makedirs(directory_path)
 
+
 def initialize_directories():
     required_directories = [
-            'barcodes',
-            'exports'
+        'barcodes',
+        'exports'
     ]
     for directory in required_directories:
         create_directory_if_not_exists(directory)
+
+initialize_directories()
+
 
 
 
