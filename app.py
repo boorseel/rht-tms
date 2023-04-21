@@ -61,8 +61,8 @@ login_manager.login_view = 'login'
 # Event model
 class Event(db.Model):
     event_ID = db.Column(db.String(6), primary_key=True)
-    event_Name = db.Column(db.String(255), nullable=False)
-    event_Date = db.Column(db.Date, nullable=False)
+    event_name = db.Column(db.String(255), nullable=False)
+    event_date = db.Column(db.Date, nullable=False)
 
 # Ticket model
 class Ticket(db.Model):
@@ -186,11 +186,11 @@ def create_event():
        flash('You do not have permission to access this page.') 
        return redirect(url_for('index')) 
    if request.method == 'POST': 
-        event_Name = request.form['event_Name'] 
-        event_Date = request.form['event_Date'] 
-        event_Date_obj = datetime.strptime(event_Date, '%Y-%m-%d') 
-        unique_hash = hashlib.sha1(f"{event_Name}{event_Date}".encode('utf-8')).hexdigest()[:6]
-        new_event = Event(event_ID=unique_hash, event_Name=event_Name, event_Date=event_Date_obj) 
+        event_name = request.form['event_name'] 
+        event_date = request.form['event_date'] 
+        event_date_obj = datetime.strptime(event_date, '%Y-%m-%d') 
+        unique_hash = hashlib.sha1(f"{event_name}{event_date}".encode('utf-8')).hexdigest()[:6]
+        new_event = Event(event_ID=unique_hash, event_name=event_name, event_date=event_date_obj) 
         db.session.add(new_event) 
         db.session.commit() 
         flash('Event successfully created.') 
@@ -204,8 +204,8 @@ def search_events():
     filtered_events = events 
     if request.method == 'POST': 
         search_term = request.form['search_term']
-        event_Date = request.form['event_Date']
-        filtered_events = [event for event in events if (search_term.lower) in event.event_Name.lower()] and (event_Date == '' or event.event_Date == datetime.strptime(event_Date, '%Y-%m-%d'))
+        event_date = request.form['event_date']
+        filtered_events = [event for event in events if (search_term.lower) in event.event_name.lower()] and (event_date == '' or event.event_date == datetime.strptime(event_date, '%Y-%m-%d'))
         return render_template('search_events.html', events=filtered_event)
 
 @app.route('/generate_tickets', methods=['GET', 'POST'])
@@ -240,15 +240,15 @@ def generate_tickets():
                 # Generate ticket ID using event_ID and count
                 ticket_id = f"{event_ID}{count:03d}"
 
-                ticket = Ticket(ticket_ID=ticket_id, event_ID=event.event_ID)
+                ticket = Ticket(ticket_ID=ticket_ID, event_ID=event.event_ID)
                 db.session.add(ticket)
                 db.session.commit()
-                print("Ticket committed to database:", ticket_id)
+                print("Ticket committed to database:", ticket_ID)
                 # Generate barcode
-                ean = barcode.get('ean13', ticket_id, writer=ImageWriter())
-                filename = f"barcodes/{ticket_id}.png"
+                ean = barcode.get('ean13', ticket_ID, writer=ImageWriter())
+                filename = f"barcodes/{ticket_ID}.png"
                 ean.save(filename)
-                ticket_ids.append(ticket_id)
+                ticket_ids.append(ticket_ID)
                 print("Generating barcode for ticket:", ticket_id)
                 ean.save(filename)
                 print("Barcode saved:", filename)
@@ -258,16 +258,16 @@ def generate_tickets():
 
             flash('Tickets generated successfully!')
             # Export ticket IDs to Excel
-            print(f"{num_tickets} ticket IDs successfully generated for {event.event_Name}.")
+            print(f"{num_tickets} ticket IDs successfully generated for {event.event_name}.")
             wb = Workbook()
             ws = wb.active
-            ws.title = f"Tickets for {event.event_Name}"
+            ws.title = f"Tickets for {event.event_name}"
             ws.append(['Ticket ID'])
             for ticket_id in ticket_ids:
-                ws.append([ticket_id])
+                ws.append([ticket_ID])
             wb.save(f"exports/tickets_{event.event_Name}.xlsx")
-            flash(f"{num_tickets} ticket IDs successfully generated for {event.event_Name}.")
-            return send_file(f"exports/tickets_{event.event_Name}.xlsx", as_attachment=True)
+            flash(f"{num_tickets} ticket IDs successfully generated for {event.event_name}.")
+            return send_file(f"exports/tickets_{event.event_name}.xlsx", as_attachment=True)
         else:
             flash("Event not found", "error")
             return redirect(url_for('index'))
@@ -281,18 +281,18 @@ def activate_ticket():
         flash('You do not have permission to access this page.')
         return redirect(url_for('index'))
     students = Students.query.all()
-    ticket = None  # Initialize the 'ticket' variable with a default value
-    student = None  # Initialize the 'student' variable with a default value
+    ticket = None  
+    student = None 
 
     if request.method == 'POST':
-        ticket_id = request.form['ticket_id']
-        student_id = request.form['student_id']
+        ticket_ID = request.form['ticket_ID']
+        student_ID = request.form['student_ID']
 
-        ticket = Ticket.query.filter_by(ticket_ID=ticket_id).first()
-        student = Student.query.filter_by(student_ID=student_id).first()
+        ticket = Ticket.query.filter_by(ticket_ID=ticket_ID).first()
+        student = Student.query.filter_by(student_ID=student_ID).first()
 
         if ticket and student:
-            ticket.student_id = student.id
+            ticket.student_ID = student.ID
             db.session.commit()
             flash('Ticket successfully activated.')
 
@@ -301,7 +301,7 @@ def activate_ticket():
             msg = Message('Ticket Activation Confirmation',
                           sender='your_email@example.com',
                           recipients=[students.student_EMAIL])  
-            msg.body = f"Dear {students.student_NAME} {students.student_SNAME},\n\nYour ticket for {event.event_Name} on {event.event_Date.strftime('%Y-%m-%d')} has been successfully activated. Please keep this email for your records.\n\nBest regards,\nRadio HighTECH"
+            msg.body = f"Dear {students.student_NAME} {students.student_SNAME},\n\nYour ticket for {event.event_name} on {event.event_Date.strftime('%Y-%m-%d')} has been successfully activated. Please keep this email for your records.\n\nBest regards,\nRadio HighTECH"
             mail.send(msg)
         else:
             flash('Ticket or student not found. Please check the information and try again.')
@@ -321,8 +321,8 @@ def refund_ticket():
     ticket = None
     
     if request.method == 'POST': 
-        ticket_id = request.form['ticket_id'] 
-        ticket = Ticket.query.filter_by(ticket_ID=ticket_id).first()
+        ticket_ID = request.form['ticket_ID'] 
+        ticket = Ticket.query.filter_by(ticket_ID=ticket_ID).first()
         if ticket:
             event_ID = ticket.event_ID 
             active_tickets_table = f"active_tickets_{event_ID}" 
@@ -330,12 +330,12 @@ def refund_ticket():
 
     if ticket:
         # Move ticket from active_tickets to refund_tickets
-        db.engine.execute(f"INSERT INTO {refund_tickets_table} SELECT * FROM {active_tickets_table} WHERE ticket_ID = '{ticket_id}'")
-        db.engine.execute(f"DELETE FROM {active_tickets_table} WHERE ticket_ID = '{ticket_id}'")
+        db.engine.execute(f"INSERT INTO {refund_tickets_table} SELECT * FROM {active_tickets_table} WHERE ticket_ID = '{ticket_ID}'")
+        db.engine.execute(f"DELETE FROM {active_tickets_table} WHERE ticket_ID = '{ticket_ID}'")
         db.session.commit()
 
         # Log the refund action
-        log = ActivityLog(user_id=current_user.id, action='refund', ticket_id=ticket.id)
+        log = ActivityLog(user_id=current_user.id, action='refund', ticket_ID=ticket.ID)
         db.session.add(log)
         db.session.commit()
         flash('Ticket successfully refunded.')
@@ -365,8 +365,8 @@ def analytics():
         refund_tickets_count = db.engine.execute(text(f"SELECT COUNT(*) FROM {refund_tickets_table}")).scalar()
         spent_tickets_count = db.engine.execute(text(f"SELECT COUNT(*) FROM {spent_tickets_table}")).scalar()
         event_analytics.append({
-            'event_Name': event.event_Name,
-            'event_Date': event.event_Date,
+            'event_name': event.event_name,
+            'event_date': event.event_date,
             'active_tickets': active_tickets_count,
             'refund_tickets': refund_tickets_count,
             'spent_tickets': spent_tickets_count
@@ -384,22 +384,22 @@ def validate_ticket():
         flash('You do not have permission to access this page.')  
         return redirect(url_for('index'))  
     if request.method == 'POST':  
-        ticket_id = request.form['ticket_id']  
-        ticket = Ticket.query.filter_by(ticket_ID=ticket_id).first()  
+        ticket_ID = request.form['ticket_ID']  
+        ticket = Ticket.query.filter_by(ticket_ID=ticket_ID).first()  
         event_ID = ticket.event_ID  
         active_tickets_table = f"active_tickets_{event_ID}"  
         spent_tickets_table = f"spent_tickets_{event_ID}"  
         if ticket:  
-            student_id = ticket.student_id  
-            student_data = Students.query.filter_by(student_ID=student_id).first()  
+            student_ID = ticket.student_id  
+            student_data = Students.query.filter_by(student_ID=student_ID).first()  
               
             #Move tickets from active_tickets to spent_tickets  
-            db.engine.execute(f"INSERT INTO {spent_tickets_table} SELECT * FROM {active_tickets_table} WHERE ticket_ID = '{ticket_id}'") 
-            db.engine.execute(f"DELETE FROM {active_tickets_table} WHERE ticket_ID = '{ticket_id}'")  
+            db.engine.execute(f"INSERT INTO {spent_tickets_table} SELECT * FROM {active_tickets_table} WHERE ticket_ID = '{ticket_ID}'") 
+            db.engine.execute(f"DELETE FROM {active_tickets_table} WHERE ticket_ID = '{ticket_ID}'")  
             db.session.commit()    
               
             #Log the validation action  
-            log = ActivityLog(user_id=current_user.id, action='validate', ticket_id=ticket.id)  
+            log = ActivityLog(user_id=current_user.id, action='validate', ticket_ID=ticket.ID)  
             db.session.add(log)  
             db.session.commit() 
             flash('Ticket successfully validated.')    
