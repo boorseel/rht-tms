@@ -267,7 +267,7 @@ def generate_tickets():
             ws = wb.active
             ws.title = f"Tickets for {event.event_name}"
             ws.append(['Ticket ID'])
-            for ticket_id in ticket_ids:
+            for ticket_ID in ticket_IDs:
                 ws.append([ticket_ID])
             wb.save(f"exports/tickets_{event.event_Name}.xlsx")
             flash(f"{num_tickets} ticket IDs successfully generated for {event.event_name}.")
