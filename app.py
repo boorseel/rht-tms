@@ -180,7 +180,7 @@ def seller_main():
 @app.route('/create_user', methods=['GET', 'POST'])
 @login_required
 def create_user():
-    if current_user.role != 'admin':
+    if current_user.role != 'super_user':
         flash('You do not have permission to access this page.')
         return redirect(url_for('index'))  
     if request.method == 'POST':
