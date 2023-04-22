@@ -253,7 +253,7 @@ def generate_tickets():
                 ean = barcode.get('ean13', ticket_ID, writer=ImageWriter())
                 filename = f"barcodes/{ticket_ID}.png"
                 ean.save(filename)
-                ticket_ids.append(ticket_ID)
+                ticket_IDs.append(ticket_ID)
                 print("Generating barcode for ticket:", ticket_ID)
                 ean.save(filename)
                 print("Barcode saved:", filename)
