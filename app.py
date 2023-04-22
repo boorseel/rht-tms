@@ -228,7 +228,8 @@ def generate_tickets():
             return redirect(url_for('index'))
         print(f"Event ID: {event_ID}")
         event = db.session.query(Event).filter_by(event_ID=event_ID).first()
-        str(random.randint(100000, 999999))  num_tickets = int(request.form.get('num_tickets', 0))
+        str(random.randint(100000, 999999))  
+        num_tickets = int(request.form.get('num_tickets', 0))
         print(f"Number of tickets to generate: {num_tickets}")
         if event is not None:
             ticket_IDs = []
