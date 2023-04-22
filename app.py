@@ -66,11 +66,11 @@ class Event(db.Model):
     event_name = db.Column(db.String(255), nullable=False)
     event_date = db.Column(db.Date, nullable=False)
 
-# Ticket model
 class Ticket(db.Model):
     __tablename__ = 'tickets'
     ticket_ID = db.Column(db.BigInteger, primary_key=True)
     event_ID = db.Column(db.Integer)
+    student_ID = db.Column(db.String(255), nullable=True) 
 
 # User model
 class User(UserMixin, db.Model):
