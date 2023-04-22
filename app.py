@@ -69,7 +69,7 @@ class Event(db.Model):
 # Ticket model
 class Ticket(db.Model):
     __tablename__ = 'tickets'
-    ticket_ID = db.Column(db.String, primary_key=True)
+    ticket_ID = db.Column(db.Integer, primary_key=True)
     event_ID = db.Column(db.Integer)
 
 # User model
@@ -210,6 +210,7 @@ def search_events():
         filtered_events = [event for event in events if (search_term.lower) in event.event_name.lower()] and (event_date == '' or event.event_date == datetime.strptime(event_date, '%Y-%m-%d'))
         return render_template('search_events.html', events=filtered_event)
 
+# GENERATE TICKET
 @app.route('/generate_tickets', methods=['GET', 'POST'])
 @login_required
 def generate_tickets():
@@ -227,7 +228,7 @@ def generate_tickets():
             return redirect(url_for('index'))
         print(f"Event ID: {event_ID}")
         event = db.session.query(Event).filter_by(event_ID=event_ID).first()
-        num_tickets = int(request.form.get('num_tickets', 0))
+        str(random.randint(100000, 999999))  num_tickets = int(request.form.get('num_tickets', 0))
         print(f"Number of tickets to generate: {num_tickets}")
         if event is not None:
             ticket_IDs = []
@@ -240,7 +241,7 @@ def generate_tickets():
 
             for _ in range(num_tickets):
                 # Generate ticket ID using event_ID and count
-                ticket_ID = f"{event_ID}{count:03d}"
+                ticket_ID = f"{event_ID[:6]}{random_digits}{incrementing_digits}"
 
                 ticket = Ticket(ticket_ID=ticket_ID, event_ID=event.event_ID)
                 db.session.add(ticket)
