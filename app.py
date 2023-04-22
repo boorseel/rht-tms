@@ -12,7 +12,7 @@ import random
 import string
 from flask_mail import Mail, Message
 from sqlalchemy.sql import text
-from sqlalchemy import Column, Integer, String, BigInteger
+from sqlalchemy import Column, Integer, String, BigInteger, text
 from sqlalchemy.orm import declarative_base, Session
 from flask_migrate import Migrate
 import random
