@@ -1,5 +1,5 @@
 from flask import Flask, render_template, request, flash, redirect, url_for
-from flask_sqlalchemy import SQLAlchemy
+from flask_sqlalchemy import SQLAlchemy, 
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
 from datetime import datetime
 import hashlib
@@ -12,7 +12,7 @@ import random
 import string
 from flask_mail import Mail, Message
 from sqlalchemy.sql import text
-from sqlalchemy import Column, Integer, String
+from sqlalchemy import Column, Integer, String, BigInteger
 from sqlalchemy.orm import declarative_base, Session
 from flask_migrate import Migrate
 import random
@@ -69,7 +69,7 @@ class Event(db.Model):
 # Ticket model
 class Ticket(db.Model):
     __tablename__ = 'tickets'
-    ticket_ID = db.Column(db.Integer, primary_key=True)
+    ticket_ID = db.Column(db.BigInteger, primary_key=True)
     event_ID = db.Column(db.Integer)
 
 # User model
