@@ -230,7 +230,7 @@ def generate_tickets():
         num_tickets = int(request.form.get('num_tickets', 0))
         print(f"Number of tickets to generate: {num_tickets}")
         if event is not None:
-            ticket_ids = []
+            ticket_IDs = []
             print(f"Generating {num_tickets} tickets for event ID {event_ID}")
             flash('Event found.', 'info')
             print("Starting ticket generation...")
@@ -240,7 +240,7 @@ def generate_tickets():
 
             for _ in range(num_tickets):
                 # Generate ticket ID using event_ID and count
-                ticket_id = f"{event_ID}{count:03d}"
+                ticket_ID = f"{event_ID}{count:03d}"
 
                 ticket = Ticket(ticket_ID=ticket_ID, event_ID=event.event_ID)
                 db.session.add(ticket)
