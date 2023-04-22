@@ -66,12 +66,12 @@ class Event(db.Model):
     event_name = db.Column(db.String(255), nullable=False)
     event_date = db.Column(db.Date, nullable=False)
 
+#Ticket model
 class Ticket(db.Model):
     __tablename__ = 'tickets'
     ticket_ID = db.Column(db.BigInteger, primary_key=True)
     event_ID = db.Column(db.Integer)
-    student_ID = db.Column(db.String(255), nullable=True) 
-
+ 
 # User model
 class User(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -395,7 +395,7 @@ def validate_ticket():
         active_tickets_table = f"active_tickets_{event_ID}"  
         spent_tickets_table = f"spent_tickets_{event_ID}"  
         if ticket:  
-            student_ID = ticket.student_ID 
+            student_ID = students.student_ID 
             student_data = Students.query.filter_by(student_ID=student_ID).first()  
               
             #Move tickets from active_tickets to spent_tickets  
