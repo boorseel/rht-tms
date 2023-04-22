@@ -380,42 +380,41 @@ def analytics():
     # Move this line back one level of indentation
     return render_template('analytics.html', event_analytics=event_analytics)
 
-# TICKET VALIDATION    
-@app.route('/validate_ticket', methods=['GET', 'POST'])  
-@login_required  
-def validate_ticket():  
-    student_data = None  
-    if current_user.role not in ('admin', 'super_user', 'seller'):  
-        flash('You do not have permission to access this page.')  
-        return redirect(url_for('index'))  
-    if request.method == 'POST':  
-        ticket_ID = request.form['ticket_ID']  
-        ticket = Ticket.query.filter_by(ticket_ID=ticket_ID).first()  
-        event_ID = ticket.event_ID  
-        active_tickets_table = f"active_tickets_{event_ID}"  
-        spent_tickets_table = f"spent_tickets_{event_ID}"  
-        if ticket:  
-            student_ID = Students.student_ID 
-            student_data = Students.query.filter_by(student_ID=student_ID).first()  
-              
-            #Move tickets from active_tickets to spent_tickets  
-            db.engine.execute(f"INSERT INTO {spent_tickets_table} SELECT * FROM {active_tickets_table} WHERE ticket_ID = '{ticket_ID}'") 
-            db.engine.execute(f"DELETE FROM {active_tickets_table} WHERE ticket_ID = '{ticket_ID}'")  
-            db.session.commit()    
-              
-            #Log the validation action  
-            log = ActivityLog(user_id=current_user.id, action='validate', ticket_ID=ticket.ID)  
-            db.session.add(log)  
-            db.session.commit() 
-            flash('Ticket successfully validated.')    
-        else:  
+# Validate Ticket
+@app.route('/validate_ticket', methods=['GET', 'POST'])
+@login_required
+def validate_ticket():
+    student_data = None
+    if current_user.role not in ('admin', 'super_user', 'seller'):
+        flash('You do not have permission to access this page.')
+        return redirect(url_for('index'))
+    if request.method == 'POST':
+        ticket_ID = request.form['ticket_ID']
+        ticket = Ticket.query.filter_by(ticket_ID=ticket_ID).first()
+        event_ID = ticket.event_ID
+        active_tickets_table = f"active_tickets_{event_ID}"
+        spent_tickets_table = f"spent_tickets_{event_ID}"
+        if ticket:
+            student_data = Students.query.filter_by(student_ID=ticket.student_ID).first()
+
+            # Move tickets from active_tickets to spent_tickets
+            with db.engine.connect() as connection:
+                connection.execute(text(f"INSERT INTO {spent_tickets_table} SELECT * FROM {active_tickets_table} WHERE ticket_ID = '{ticket_ID}'"))
+                connection.execute(text(f"DELETE FROM {active_tickets_table} WHERE ticket_ID = '{ticket_ID}'"))
+                db.session.commit()
+
+            # Log the validation action
+            log = ActivityLog(user_id=current_user.id, action='validate', ticket_ID=ticket.ID)
+            db.session.add(log)
+            db.session.commit()
+            flash('Ticket successfully validated.')
+        else:
             flash('Ticket not found. Please check the information and try again.')
-            return render_template('validate_ticket.html', student_data=student_data)    
+            return render_template('validate_ticket.html', student_data=student_data)
 
     return render_template('validate_ticket.html', student_data=student_data)
-
              
-             
+#Main
 if __name__ == "__main__":
     initialize_directories()
 
