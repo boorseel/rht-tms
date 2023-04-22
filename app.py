@@ -198,6 +198,18 @@ def create_event():
         db.session.add(new_event)
         db.session.commit()
         flash('Event successfully created.')
+        # Create spent_tickets table for the new event
+        spent_tickets_table_name = f"spent_tickets_{event_id_int}"
+        create_table_sql = text(f"""
+        CREATE TABLE {spent_tickets_table_name} (
+            ticket_ID BIGINT PRIMARY KEY,
+            event_ID char(10) NOT NULL,
+            student_ID int NOT NULL
+            FOREIGN KEY (event_ID) REFERENCES event(event_ID),
+            FOREIGN KEY (student_ID) REFERENCES student(student_ID)
+            );
+            """)
+        db.engine.execute(create_table_sql)
     return render_template('create_event.html')
 
 # SEARCH EVENT 
