@@ -364,7 +364,7 @@ def refund_ticket():
     ticket = None
     
     if request.method == 'POST': 
-        ticket_ID = request.form['ticket_ID'] 
+        ticket_ID = request.form.get('ticket_ID', None)
         ticket = Ticket.query.filter_by(ticket_ID=ticket_ID).first()
         if ticket:
             event_ID = ticket.event_ID 
@@ -403,6 +403,8 @@ def analytics():
         refund_tickets_table = f"refund_tickets_{event_ID}"
         spent_tickets_table = f"spent_tickets_{event_ID}"
 
+        with db.engine.connect() as connection:
+            active_tickets_count = connection.execute(text(f"SELECT COUNT(*) FROM {active_tickets_table}")).scalar()
         # Calculate KPIs for the event
         active_tickets_count = db.engine.execute(text(f"SELECT COUNT(*) FROM {active_tickets_table}")).scalar()
         refund_tickets_count = db.engine.execute(text(f"SELECT COUNT(*) FROM {refund_tickets_table}")).scalar()
@@ -442,7 +444,7 @@ def validate_ticket():
                 db.session.commit()
 
             # Log the validation action
-            log = ActivityLog(user_id=current_user.id, action='validate', ticket_ID=ticket.ID)
+            log = ActivityLog(user_id=current_user.id, action='validate', ticket_ID=ticket.ticket_ID)
             db.session.add(log)
             db.session.commit()
             flash('Ticket successfully validated.')
