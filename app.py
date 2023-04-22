@@ -213,7 +213,7 @@ def create_event():
         db.session.commit()
         flash('Event successfully created.')
         # Create spent_tickets table for the new event
-        spent_tickets_table_name = f"spent_tickets_{event_ID}"
+        spent_tickets_table_name = f"spent_tickets_{event_ID_int}"
         create_table_sql = text(f"""
         CREATE TABLE {spent_tickets_table_name} (
             ticket_ID BIGINT PRIMARY KEY,
@@ -224,7 +224,7 @@ def create_event():
             );
        """)
         # Create active_tickets table for the new event
-        active_tickets_table_name = f"active_tickets_{event_ID}"  
+        active_tickets_table_name = f"active_tickets_{event_ID_int}"  
         create_table_sql = text(f"""
         CREATE TABLE {active_tickets_table_name} (
             ticket_ID BIGINT PRIMARY KEY,
@@ -235,7 +235,7 @@ def create_event():
             );
        """)
         # Create refund_tickets table for the new event
-        spent_tickets_table_name = f"spent_tickets_{event_ID}"
+        refund_tickets_table_name = f"refund_tickets_{event_ID_int}"
         create_table_sql = text(f"""
         CREATE TABLE {refund_tickets_table_name} (
             ticket_ID BIGINT PRIMARY KEY,
@@ -246,19 +246,20 @@ def create_event():
             );
         """)
         db.engine.execute(create_table_sql)
+        db.session.commit()
     return render_template('create_event.html')
 
-# SEARCH EVENT 
-@app.route('/search_events', methods=['GET', 'POST']) 
-@login_required 
-def search_events(): 
-    events = Event.query.all() 
-    filtered_events = events 
-    if request.method == 'POST': 
+# SEARCH EVENT
+@app.route('/search_events', methods=['GET', 'POST'])
+@login_required
+def search_events():
+    events = Event.query.all()
+    filtered_events = events
+    if request.method == 'POST':
         search_term = request.form['search_term']
         event_date = request.form['event_date']
-        filtered_events = [event for event in events if (search_term.lower) in event.event_name.lower()] and (event_date == '' or event.event_date == datetime.strptime(event_date, '%Y-%m-%d'))
-        return render_template('search_events.html', events=filtered_event)
+        filtered_events = [event for event in events if (search_term.lower() in event.event_name.lower()) and (event_date == '' or event.event_date == datetime.strptime(event_date, '%Y-%m-%d'))]
+    return render_template('search_events.html', events=filtered_events)
 
 # GENERATE TICKET
 @app.route('/generate_tickets', methods=['GET', 'POST'])
@@ -291,7 +292,7 @@ def generate_tickets():
 
             for _ in range(num_tickets):
                 # Generate ticket ID using event_ID and count
-                unique_number = f"{count:06}"  # Zero-pad count to ensure it's 6 digits long
+                unique_number = f"{count:06}"
                 ticket_ID = f"{event_ID}{unique_number}"
 
                 ticket = Ticket(ticket_ID=ticket_ID, event_ID=event.event_ID)
