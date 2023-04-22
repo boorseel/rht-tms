@@ -17,6 +17,7 @@ from sqlalchemy import Column, Integer, String, BigInteger, text
 from sqlalchemy.orm import declarative_base, Session
 from flask_migrate import Migrate
 import random
+from sqlalchemy.exc import IntegrityError
 
 #Debuging
 import sentry_sdk
@@ -84,7 +85,7 @@ class Event(db.Model):
 class Ticket(db.Model):
     __tablename__ = 'tickets'
     ticket_ID = db.Column(db.String, primary_key=True)
-    event_ID = db.Column(db.String, db.ForeignKey('events.event_ID'), nullable=False)
+    event_ID = db.Column(db.String, db.ForeignKey('event.event_ID'), nullable=False)
     student_ID = db.Column(db.String, db.ForeignKey('students.student_ID'), nullable=False)
  
 # User model
@@ -223,9 +224,9 @@ def create_event():
         CREATE TABLE {spent_tickets_table_name} (
             ticket_ID BIGINT PRIMARY KEY,
             event_ID char(10) NOT NULL,
-            student_ID int NOT NULL
+            student_ID VARCHAR(255) NOT NULL,
             FOREIGN KEY (event_ID) REFERENCES event(event_ID),
-            FOREIGN KEY (student_ID) REFERENCES student(student_ID)
+            FOREIGN KEY (student_ID) REFERENCES students(student_ID)
             );
        """)
         # Create active_tickets table for the new event
@@ -234,9 +235,9 @@ def create_event():
         CREATE TABLE {active_tickets_table_name} (
             ticket_ID BIGINT PRIMARY KEY,
             event_ID char(10) NOT NULL,
-            student_ID int NOT NULL
+            student_ID VARCHAR(255) NOT NULL,
             FOREIGN KEY (event_ID) REFERENCES event(event_ID),
-            FOREIGN KEY (student_ID) REFERENCES student(student_ID)
+            FOREIGN KEY (student_ID) REFERENCES students(student_ID)
             );
        """)
         # Create refund_tickets table for the new event
@@ -245,12 +246,12 @@ def create_event():
         CREATE TABLE {refund_tickets_table_name} (
             ticket_ID BIGINT PRIMARY KEY,
             event_ID char(10) NOT NULL,
-            student_ID int NOT NULL,
+            student_ID VARCHAR(255) NOT NULL,
             FOREIGN KEY (event_ID) REFERENCES event(event_ID),
-            FOREIGN KEY (student_ID) REFERENCES student(student_ID)
+            FOREIGN KEY (student_ID) REFERENCES students(student_ID)
             );
         """)
-        db.engine.execute(create_table_sql)
+        db.session.execute(create_table_sql)
         db.session.commit()
     return render_template('create_event.html')
 
