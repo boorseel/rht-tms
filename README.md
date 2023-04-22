@@ -31,6 +31,14 @@ event_name VARCHAR(255) NOT NULL,
 event_date DATE NOT NULL
 );
 
+CREATE TABLE tickets (
+  
+  ticket_ID BIGINT  PRIMARY KEY,
+    event_ID char(10) NOT NULL,
+    FOREIGN KEY (event_ID) REFERENCES event(event_ID)
+
+);
+
 CREATE TABLE `user` (
 
   `id` int(11) NOT NULL AUTO_INCREMENT,
