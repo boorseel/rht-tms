@@ -210,6 +210,7 @@ def search_events():
         filtered_events = [event for event in events if (search_term.lower) in event.event_name.lower()] and (event_date == '' or event.event_date == datetime.strptime(event_date, '%Y-%m-%d'))
         return render_template('search_events.html', events=filtered_event)
 
+# GENERATE TICKET
 @app.route('/generate_tickets', methods=['GET', 'POST'])
 @login_required
 def generate_tickets():
@@ -218,59 +219,63 @@ def generate_tickets():
         return redirect(url_for('index'))
     events = Event.query.all()
     if request.method == 'POST':
+        print("Request method is POST")
         event_ID = None
         try:
             event_ID = request.form['event_ID']
         except KeyError:
             flash('Event ID not provided.', 'error')
             return redirect(url_for('index'))
-
+        print(f"Event ID: {event_ID}")
         event = db.session.query(Event).filter_by(event_ID=event_ID).first()
-        random_digits = str(random.randint(100000, 999999))
         num_tickets = int(request.form.get('num_tickets', 0))
-
+        print(f"Number of tickets to generate: {num_tickets}")
         if event is not None:
             ticket_IDs = []
+            print(f"Generating {num_tickets} tickets for event ID {event_ID}")
             flash('Event found.', 'info')
+            print("Starting ticket generation...")
 
             # Initialize count variable
             count = 1
 
             for _ in range(num_tickets):
                 # Generate ticket ID using event_ID and count
-                incrementing_digits = f"{count:03d}"
-                ticket_ID = f"{event_ID[:6]}{random_digits}{incrementing_digits}"
+                unique_number = f"{count:06}"  # Zero-pad count to ensure it's 6 digits long
+                ticket_ID = f"{event_ID}{unique_number}"
 
                 ticket = Ticket(ticket_ID=ticket_ID, event_ID=event.event_ID)
                 db.session.add(ticket)
                 db.session.commit()
-
+                print("Ticket committed to database:", ticket_ID)
                 # Generate barcode
                 ean = barcode.get('ean13', ticket_ID, writer=ImageWriter())
                 filename = f"barcodes/{ticket_ID}.png"
                 ean.save(filename)
-                ticket_IDs.append(ticket_ID)
+                ticket_ids.append(ticket_ID)
+                print("Generating barcode for ticket:", ticket_ID)
+                ean.save(filename)
+                print("Barcode saved:", filename)
 
                 # Increment count variable
                 count += 1
 
             flash('Tickets generated successfully!')
-
             # Export ticket IDs to Excel
+            print(f"{num_tickets} ticket IDs successfully generated for {event.event_name}.")
             wb = Workbook()
             ws = wb.active
             ws.title = f"Tickets for {event.event_name}"
             ws.append(['Ticket ID'])
-            for ticket_id in ticket_IDs:
-                ws.append([ticket_id])
-            wb.save(f"exports/tickets_{event.event_name}.xlsx")
+            for ticket_id in ticket_ids:
+                ws.append([ticket_ID])
+            wb.save(f"exports/tickets_{event.event_Name}.xlsx")
             flash(f"{num_tickets} ticket IDs successfully generated for {event.event_name}.")
             return send_file(f"exports/tickets_{event.event_name}.xlsx", as_attachment=True)
         else:
             flash("Event not found", "error")
             return redirect(url_for('index'))
     return render_template('generate_tickets.html', events=events)
-
 
 # ACTIVATE TICKET
 @app.route('/activate_ticket', methods=['GET', 'POST'])
