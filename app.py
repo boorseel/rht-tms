@@ -193,15 +193,26 @@ def create_event():
         event_date = request.form['event_date']
         event_date_obj = datetime.strptime(event_date, '%Y-%m-%d')
         unique_hash = hashlib.sha1(f"{event_name}{event_date}".encode('utf-8')).hexdigest()[:6]
-        event_id_int = int(unique_hash, 16)  # Convert unique_hash to integer
-        new_event = Event(event_ID=event_id_int, event_name=event_name, event_date=event_date_obj)
+        event_ID_int = int(unique_hash, 16)  # Convert unique_hash to integer
+        new_event = Event(event_ID=event_ID_int, event_name=event_name, event_date=event_date_obj)
         db.session.add(new_event)
         db.session.commit()
         flash('Event successfully created.')
         # Create spent_tickets table for the new event
-        spent_tickets_table_name = f"spent_tickets_{event_id_int}"
+        spent_tickets_table_name = f"spent_tickets_{event_ID}"
         create_table_sql = text(f"""
         CREATE TABLE {spent_tickets_table_name} (
+            ticket_ID BIGINT PRIMARY KEY,
+            event_ID char(10) NOT NULL,
+            student_ID int NOT NULL
+            FOREIGN KEY (event_ID) REFERENCES event(event_ID),
+            FOREIGN KEY (student_ID) REFERENCES student(student_ID)
+            );
+            """)
+        # Create active_tickets table for the new event
+        active_tickets_table_name = f"active_tickets_{event_ID}"  
+        create_table_sql = text(f"""
+        CREATE TABLE {active_tickets_table_name} (
             ticket_ID BIGINT PRIMARY KEY,
             event_ID char(10) NOT NULL,
             student_ID int NOT NULL
