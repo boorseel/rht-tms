@@ -69,8 +69,9 @@ class Event(db.Model):
 #Ticket model
 class Ticket(db.Model):
     __tablename__ = 'tickets'
-    ticket_ID = db.Column(db.BigInteger, primary_key=True)
-    event_ID = db.Column(db.Integer)
+    ticket_ID = db.Column(db.String, primary_key=True)
+    event_ID = db.Column(db.String, db.ForeignKey('events.event_ID'), nullable=False)
+    student_ID = db.Column(db.String, db.ForeignKey('students.student_ID'), nullable=False)
  
 # User model
 class User(UserMixin, db.Model):
