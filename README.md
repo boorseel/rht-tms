@@ -44,6 +44,6 @@ CREATE TABLE `user` (
 
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-INSERT INTO `user` (`username`, `email`, `password`, `role`) VALUES ('admin', 'basarorsel@std.iyte.edu.tr', '93745696049ce21ca9c06f20bdce44719440fe4f8c409c473a171bb4d62e53df', 'super_user'
+INSERT INTO `user` (`username`, `email`, `password`, `role`) VALUES ('admin', 'admin@example.com', 'hashed_passwd', 'super_user'
 );
 
