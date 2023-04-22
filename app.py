@@ -210,7 +210,12 @@ def create_event():
         event_ID_int = int(unique_hash, 16)  # Convert unique_hash to integer
         new_event = Event(event_ID=event_ID_int, event_name=event_name, event_date=event_date_obj)
         db.session.add(new_event)
-        db.session.commit()
+        try:
+            db.session.commit()
+        except IntegrityError:
+            db.session.rollback()
+            flash('Event ID already exists. Please try again.')
+            return render_template('create_event.html')
         flash('Event successfully created.')
         # Create spent_tickets table for the new event
         spent_tickets_table_name = f"spent_tickets_{event_ID_int}"
@@ -224,7 +229,7 @@ def create_event():
             );
        """)
         # Create active_tickets table for the new event
-        active_tickets_table_name = f"active_tickets_{event_ID_int}"  
+        active_tickets_table_name = f"active_tickets_{event_ID_int}"
         create_table_sql = text(f"""
         CREATE TABLE {active_tickets_table_name} (
             ticket_ID BIGINT PRIMARY KEY,
