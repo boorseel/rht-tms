@@ -395,7 +395,7 @@ def validate_ticket():
         active_tickets_table = f"active_tickets_{event_ID}"  
         spent_tickets_table = f"spent_tickets_{event_ID}"  
         if ticket:  
-            student_ID = students.student_ID 
+            student_ID = Students.student_ID 
             student_data = Students.query.filter_by(student_ID=student_ID).first()  
               
             #Move tickets from active_tickets to spent_tickets  
