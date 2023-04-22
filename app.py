@@ -294,7 +294,7 @@ def activate_ticket():
         student_ID = request.form['student_ID']
 
         ticket = Ticket.query.filter_by(ticket_ID=ticket_ID).first()
-        student = Student.query.filter_by(student_ID=student_ID).first()
+        student = Students.query.filter_by(student_ID=student_ID).first()
 
         if ticket and student:
             ticket.student_ID = student.ID
