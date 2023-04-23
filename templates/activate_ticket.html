@@ -2,6 +2,12 @@
 
 {% block content %}
 	<h2>Activate Ticket</h2>
+	<form action="{{ url_for('activate_ticket') }}" method="POST" enctype="multipart/form-data">
+		<label for="ticket_id">Ticket ID:</label>
+		<input type="text" name="ticket_id" id="ticket_id">
+		<p>Or</p>
+		<label for="barcode_image">Scan Barcode:</label>
+		<input type="file" name="barcode_image" id="barcode_image" accept="image/*"><br>
 	<form action="{{ url_for('activate_ticket') }}" method="post">
 		<input type="text" name="ticket_ID" placeholder="Ticket ID" required><br>
 		<input type="text" name="student_ID" placeholder="Student ID" required><br>

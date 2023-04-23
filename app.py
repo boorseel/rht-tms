@@ -1,4 +1,9 @@
 from flask import Flask, render_template, request, flash, redirect, url_for
+from pyzbar.pyzbar import decode
+from PIL import Image
+from io import BytesIO
+from flask import send_file
+import cv2
 from datetime import datetime
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
@@ -75,7 +80,9 @@ class ActivityLog(db.Model):
         self.action = action
         self.ticket_ID = ticket_ID
 
-db.create_all()
+    with app.app_context():
+        db.create_all()
+        
 
 # Event model
 class Event(db.Model):
@@ -83,13 +90,21 @@ class Event(db.Model):
     event_name = db.Column(db.String(255), nullable=False)
     event_date = db.Column(db.Date, nullable=False)
 
+    with app.app_context():
+        db.create_all()
+
+
 #Ticket model
 class Ticket(db.Model):
     __tablename__ = 'tickets'
     ticket_ID = db.Column(db.String, primary_key=True)
     event_ID = db.Column(db.String, db.ForeignKey('event.event_ID'), nullable=False)
     student_ID = db.Column(db.String, db.ForeignKey('students.student_ID'), nullable=False)
- 
+    status = db.Column(db.String(20), nullable=False, default="inactive")
+
+    with app.app_context():
+        db.create_all()
+
 # User model
 class User(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -114,7 +129,10 @@ class Students(db.Model):
 
     def __repr__(self):
         return f"<Students {self.student_ID} - {self.student_NAME} {self.student_SNAME}>"
-      
+
+    with app.app_context():
+        db.create_all()
+
 # User loader
 @login_manager.user_loader
 def load_user(user_id):
@@ -340,7 +358,7 @@ def generate_tickets():
             return redirect(url_for('index'))
     return render_template('generate_tickets.html', events=events)
 
-# ACTIVATE TICKET
+#ACTIVATE TICKET
 @app.route('/activate_ticket', methods=['GET', 'POST'])
 @login_required
 def activate_ticket():
@@ -348,35 +366,49 @@ def activate_ticket():
         flash('You do not have permission to access this page.')
         return redirect(url_for('index'))
     students = Students.query.all()
-    ticket = None  
-    student = None 
-
+    ticket = None
+    student = None
     if request.method == 'POST':
-        ticket_ID = request.form['ticket_ID']
-        student_ID = request.form['student_ID']
-
-        ticket = Ticket.query.filter_by(ticket_ID=ticket_ID).first()
-        student = Students.query.filter_by(student_ID=student_ID).first()
-
-        if ticket and student:
-            ticket.student_ID = student.ID
-            db.session.commit()
-            flash('Ticket successfully activated.')
-
-            # Send email confirmation to the student
-            event = Event.query.get(ticket.event_ID)  # Corrected the line to query Event
-            msg = Message('Ticket Activation Confirmation',
-                          sender='your_email@example.com',
-                          recipients=[students.student_EMAIL])  
-            msg.body = f"Dear {students.student_NAME} {students.student_SNAME},\n\nYour ticket for {event.event_name} on {event.event_Date.strftime('%Y-%m-%d')} has been successfully activated. Please keep this email for your records.\n\nBest regards,\nRadio HighTECH"
-            mail.send(msg)
-        else:
-            flash('Ticket or student not found. Please check the information and try again.')
-            return render_template('activate_ticket.html')
-
+        ticket_ID = request.form.get('ticket_ID')
+        # If no ticket_ID is provided, attempt to read from the uploaded image
+        if not ticket_ID:
+            barcode_image = request.files.get('barcode_image')
+            if barcode_image:
+                # Convert the uploaded image to a PIL.Image
+                image = Image.open(barcode_image)
+                # Convert the PIL.Image to an OpenCV image (numpy array)
+                cv_image = np.array(image)
+                # Decode the barcode in the OpenCV image
+                decoded_objects = decode(cv_image)
+                if decoded_objects:
+                    # Get the first decoded barcode data
+                    ticket_ID = decoded_objects[0].data.decode("utf-8")
+                else:
+                    flash("No barcode found in the uploaded image.", "error")
+                    return render_template('activate_ticket.html')
+            else:
+                flash("Please provide a ticket ID or upload an image with a barcode.", "error")
+                return render_template('activate_ticket.html')
+            student_ID = request.form['student_ID']
+            ticket = Ticket.query.filter_by(ticket_ID=ticket_ID).first()
+            student = Students.query.filter_by(student_ID=student_ID).first()
+            if ticket and student:
+                ticket.student_ID = students.student_ID
+                db.session.commit()
+                flash('Ticket successfully activated.')
+                # Send email confirmation to the student
+                event = Event.query.get(ticket.event_ID)
+                msg = Message('Ticket Activation Confirmation',
+                    sender='your_email@example.com',
+                    recipients=[students.student_EMAIL])
+                msg.body = f"Dear {students.student_NAME} {students.student_SNAME},\n\nYour ticket for {event.event_name} on {event.event_date.strftime('%Y-%m-%d')} has been successfully activated. Please keep this email for your records.\n\nBest regards,\nRadio HighTECH"
+                mail.send(msg)
+                return render_template('activate_ticket.html', students=students)
+            else:
+                flash('Ticket or student not found. Please check the information and try again.')
+                return render_template('activate_ticket.html')
     return render_template('activate_ticket.html', students=students)
 
-     
 # REFUND TICKETS    
 @app.route('/refund_ticket', methods=['GET', 'POST']) 
 @login_required 
