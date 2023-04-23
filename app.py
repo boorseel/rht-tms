@@ -228,7 +228,9 @@ def create_event():
             FOREIGN KEY (event_ID) REFERENCES event(event_ID),
             FOREIGN KEY (student_ID) REFERENCES students(student_ID)
             );
-       """)
+        """)
+        db.session.execute(create_table_sql)
+        db.session.commit()
         # Create active_tickets table for the new event
         active_tickets_table_name = f"active_tickets_{event_ID_int}"
         create_table_sql = text(f"""
@@ -239,7 +241,9 @@ def create_event():
             FOREIGN KEY (event_ID) REFERENCES event(event_ID),
             FOREIGN KEY (student_ID) REFERENCES students(student_ID)
             );
-       """)
+        """)
+        db.session.execute(create_table_sql)
+        db.session.commit()
         # Create refund_tickets table for the new event
         refund_tickets_table_name = f"refund_tickets_{event_ID_int}"
         create_table_sql = text(f"""
