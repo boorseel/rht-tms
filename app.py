@@ -75,6 +75,8 @@ class ActivityLog(db.Model):
         self.action = action
         self.ticket_ID = ticket_ID
 
+db.create_all
+
 # Event model
 class Event(db.Model):
     event_ID = db.Column(db.String(6), primary_key=True)
@@ -269,7 +271,7 @@ def search_events():
         search_term = request.form['search_term']
         event_date = request.form['event_date']
         filtered_events = [event for event in events if (search_term.lower() in event.event_name.lower()) and (event_date == '' or event.event_date == datetime.strptime(event_date, '%Y-%m-%d'))]
-    return render_template('search_events.html', events=filtered_events)
+    return render_template('search_event.html', events=filtered_events)
 
 # GENERATE TICKET
 @app.route('/generate_tickets', methods=['GET', 'POST'])
