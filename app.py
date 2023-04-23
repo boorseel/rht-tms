@@ -75,7 +75,7 @@ class ActivityLog(db.Model):
         self.action = action
         self.ticket_ID = ticket_ID
 
-db.create_all
+db.create_all()
 
 # Event model
 class Event(db.Model):
