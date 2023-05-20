@@ -20,6 +20,8 @@ from sqlalchemy import Column, Integer, String, BigInteger
 from sqlalchemy.orm import declarative_base, Session
 from flask_migrate import Migrate
 from sqlalchemy.exc import SQLAlchemyError, IntegrityError
+from dotenv import load_dotenv
+
 
 # Debugging
 import sentry_sdk
@@ -29,6 +31,8 @@ sentry_sdk.init(
     os.getenv("SENTRY_DSN"),
     traces_sample_rate=1.0
 )
+# Load from .env
+load_dotenv()
 
 # Change working directory
 try:
