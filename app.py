@@ -71,7 +71,7 @@ mail = Mail(app)
 # DATABASE SETTINGS
 load_dotenv()
 
-app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv("DATABASE_URI")
+app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv("SQLALCHEMY_DATABASE_URI")
 app.config['SECRET_KEY'] = os.getenv("SECRET_KEY")
 
 try:
