@@ -32,7 +32,7 @@ sentry_sdk.init(
     traces_sample_rate=1.0
 )
 # Load from .env
-load_dotenv()
+#load_dotenv()
 
 # Change working directory
 try:
@@ -69,6 +69,8 @@ app.config['MAIL_PASSWORD'] = os.getenv("MAIL_PASSWORD")
 mail = Mail(app)
 
 # DATABASE SETTINGS
+load_dotenv()
+
 app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv("DATABASE_URI")
 app.config['SECRET_KEY'] = os.getenv("SECRET_KEY")
 
